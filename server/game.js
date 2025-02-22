@@ -42,6 +42,11 @@ class ERSGame {
         return this.players[this.currentTurn];
     }
 
+    addPlayer(playerId){{
+        this.players.push(playerId);
+        
+    }}
+
     /**
    * Handles a player playing a card.
    * @param {string} playerId - The player playing the card.
