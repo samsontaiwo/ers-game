@@ -6,7 +6,7 @@ import Homepage from './Component/Homepage';
 const App = () => {
   return(
     <div>
-      hello there niggger
+      hello there chld
     </div>
   )
 }
