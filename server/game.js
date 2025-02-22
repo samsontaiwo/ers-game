@@ -44,7 +44,7 @@ class ERSGame {
 
     addPlayer(playerId){{
         this.players.push(playerId);
-        
+
     }}
 
     /**
@@ -122,4 +122,3 @@ ERSGame.prototype.slap = function (playerId) {
 
 
 
-}
