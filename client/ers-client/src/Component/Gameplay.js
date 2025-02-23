@@ -1,11 +1,11 @@
 import PhaserGame from './Phaser';
 
 
-const Gameplay = ({gameData}) => {
-    console.log(gameData);
+const Gameplay = ({gameData, socket}) => {
+    // console.log(gameData);
     return (
         <div id='gameplay-container'>
-            <PhaserGame players={gameData.players}/>
+            <PhaserGame players={gameData.players} socket={socket}/>
         </div>
     )
 }

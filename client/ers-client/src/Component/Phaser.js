@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import Phaser from 'phaser';
 // import '../App.css';
 
-const PhaserGame = ({ players }) => {
+const PhaserGame = ({ players, socket }) => {
+    console.log(players, 'from phaser')
     useEffect(() => {
         const config = {
             type: Phaser.AUTO,
@@ -65,10 +66,20 @@ const PhaserGame = ({ players }) => {
                 { x: this.cameras.main.width - padding, y: centerY }  // Right (50px from the right)
             ];
         }
+
+        //Create player order, illusion
+        let playerOrder = [];
+        let playerIndex = players.indexOf(socket.id);
+        if(playerIndex !== 0){
+            playerOrder = [...players.slice(playerIndex), ...players.slice(0, playerIndex)]
+        }else{
+            playerOrder = players;
+        }
+        console.log(playerOrder);
     
         // Create player slots at the determined positions
         positions.forEach((position, index) => {
-            this.add.text(position.x - 30, position.y - 80, players[index].name, { font: '16px Arial', fill: '#fff' });
+            this.add.text(position.x+50, position.y, playerOrder[index], { font: '16px Arial', fill: '#000000' }); //adds player's socket.id
             this.add.rectangle(position.x, position.y, slotWidth, slotHeight, 0x0000ff).setAlpha(0.5);
     
             // Add the card back image and scale it to fit inside the allocated slot

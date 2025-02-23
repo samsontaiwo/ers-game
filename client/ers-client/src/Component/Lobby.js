@@ -13,14 +13,13 @@ const Lobby = ({ socket }) => {
       console.log(`Connected to game: ${gameCode} with socket ID: ${socket.id}`);
       if (gameCode === socket.id) setStartButton(true);
 
-      // ✅ Attach event listener only once
+
       socket.on("gameStarted", ({ gameInfo }) => {
         setGameData(gameInfo);
         setGameplay(true);
-        console.log(gameInfo, "from lobby");
       });
 
-      // ✅ Cleanup function to remove listener when the component unmounts
+ 
       return () => {
         socket.off("gameStarted");
       };
@@ -38,8 +37,9 @@ const Lobby = ({ socket }) => {
     <div>
       <h1>Lobby</h1>
       <p>Game Code: {gameCode}</p>
+      <p>Socket ID: {socket.id}</p>
       {startButton && <button onClick={handleStartGame}>Start Game</button>}
-      {gameplay && <Gameplay gameData={gameData} />}
+      {gameplay && <Gameplay gameData={gameData} socket={socket}/>}
     </div>
   );
 };
