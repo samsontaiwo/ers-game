@@ -47,15 +47,20 @@ const Homepage = ({ socket }) => {  // Receive socket as a prop
     };
 
     return (
-        <div>
-            <div>
-                <button onClick={handleCreateGameClick}>Create Game</button>
-                <button onClick={handleJoinGameClick}>Join Game</button>
+        <div id='homepage'>
+            <div id='button-div'>
+                <button className="homepage-buttons" onClick={handleCreateGameClick}>Create Game</button>
+                <button className="homepage-buttons">Rules</button>
+                <button className="homepage-buttons" onClick={handleJoinGameClick}>Join Game</button>
             </div>
-
+    
+            {/* Modal pop-up */}
             {isModalOpen && (
-                <div>
-                    <div>
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        {/* Cancel Button at top-right */}
+                        <button className="cancel-button" onClick={handleCloseModal}>Cancel</button>
+    
                         <h2>Enter Game Code</h2>
                         <input
                             type="text"
@@ -63,13 +68,16 @@ const Homepage = ({ socket }) => {  // Receive socket as a prop
                             onChange={handleInputChange}
                             placeholder="Enter game code"
                         />
-                        <button onClick={handleSubmitGameCode}>Join</button>
-                        <button onClick={handleCloseModal}>Cancel</button>
+    
+                        {/* Join Button at the bottom */}
+                        <button className="join-button" onClick={handleSubmitGameCode}>Join</button>
                     </div>
                 </div>
             )}
         </div>
     );
+    
+    
 };
 
 export default Homepage;
