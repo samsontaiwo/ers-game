@@ -190,5 +190,16 @@ body {
     margin-bottom: 10px; /* Space between input and join button */
 }
 
+#lobby {
+    background-color: white;
+    height: 900px;
+    width: 1200px;
+}
+
+#gameplay-container {
+    border: solid 5px red;
+}
+
+
 
 

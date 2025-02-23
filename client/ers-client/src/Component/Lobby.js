@@ -34,7 +34,7 @@ const Lobby = ({ socket }) => {
   };
 
   return (
-    <div>
+    <div id="lobby">
       <h1>Lobby</h1>
       <p>Game Code: {gameCode}</p>
       <p>Socket ID: {socket.id}</p>

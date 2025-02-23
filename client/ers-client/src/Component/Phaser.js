@@ -7,15 +7,15 @@ const PhaserGame = ({ players, socket }) => {
     useEffect(() => {
         const config = {
             type: Phaser.AUTO,
-            width: 1600,
-            height: 800,
+            width: 1200,
+            height: 900,
             parent: 'phaser-container', // This must match the div ID
             scene: {
                 preload,
                 create,
                 update
             },
-            backgroundColor: '#7FFFD4',
+            // backgroundColor: '#7FFFD4',
         };
 
         const game = new Phaser.Game(config);
@@ -117,7 +117,7 @@ const PhaserGame = ({ players, socket }) => {
             pileCardBack.setDisplaySize(pileWidth, pileHeight); // Scale image to match the pile size
                 });
 
-                this.cameras.main.setBackgroundColor('#7FFFD4');
+                this.cameras.main.setBackgroundColor('red');
             }
     
     
