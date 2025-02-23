@@ -85,6 +85,22 @@ const PhaserGame = ({ players, socket }) => {
             // Add the card back image and scale it to fit inside the allocated slot
             const cardBack = this.add.image(position.x, position.y, 'backOfCard').setInteractive();
             cardBack.setDisplaySize(slotWidth, slotHeight); // Scale image to match the slot size
+
+            // Add Slap Button
+            const slapButton = this.add.text(position.x - slotWidth / 2, position.y + slotHeight / 2 + 20, 'Slap', { font: '16px Arial', fill: '#ff0000' })
+            .setInteractive()
+            .on('pointerdown', () => {
+                console.log(`${players[index]} slapped!`);
+                // Add logic for Slap action here
+            });
+
+            //Add Flip Button
+            const flipButton = this.add.text(position.x + slotWidth / 2, position.y + slotHeight / 2 + 20, 'Flip', { font: '16px Arial', fill: '#0000ff' })
+            .setInteractive()
+            .on('pointerdown', () => {
+                console.log(`${players[index]} flipped!`);
+                // Add logic for Flip action here
+            });
         });
 
         this.cameras.main.setBackgroundColor('#7FFFD4');
