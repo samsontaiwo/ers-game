@@ -1,0 +1,14 @@
+/* #gameplay-container {
+    height: 700px;
+    width: 1000px;
+    background-color: aquamarine;
+} */
+
+#main {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+#phaser-container {
+    border: solid 5px blue;
+}

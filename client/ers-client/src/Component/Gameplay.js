@@ -1,10 +1,11 @@
+import PhaserGame from './Phaser';
 
 
-
-const Gameplay = () => {
+const Gameplay = ({gameData}) => {
+    console.log(gameData);
     return (
-        <div>
-            this is the gameplay
+        <div id='gameplay-container'>
+            <PhaserGame players={gameData.players}/>
         </div>
     )
 }

@@ -41,8 +41,9 @@ io.on("connection", (socket) => {
         if(!game) return;
 
         game.assignCards();
-        console.log(game.players.length)
-        io.to(gameId).emit('gameStarted', {playersLength: game.players.length})
+        console.log(game.players.length);
+        console.log(game);
+        io.to(gameId).emit('gameStarted', {gameInfo: game})
     })
 
     socket.on("playCard", (gameId, playerId) => {
