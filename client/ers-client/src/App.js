@@ -4,6 +4,7 @@ import io from 'socket.io-client'; // Import socket.io client
 import Homepage from './Component/Homepage';
 import Lobby from './Component/Lobby';
 import './App.css';
+import Gameplay from './Component/Gameplay';
 
 const App = () => {
     const [socket, setSocket] = useState(null);
@@ -23,6 +24,7 @@ const App = () => {
             <Routes>
                 <Route path="/" element={<Homepage socket={socket} />} />
                 <Route path="/lobby/:gameCode" element={<Lobby socket={socket} />} />
+                <Route path="/gameplay/:gameCode/live-gameplay" element={<Gameplay socket={socket}/>}/>
             </Routes>
         </Router>
       </div>

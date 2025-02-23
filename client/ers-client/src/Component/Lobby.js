@@ -1,30 +1,28 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
 import Gameplay from "./Gameplay";
 
 const Lobby = ({ socket }) => {
   const { gameCode } = useParams();
   const [startButton, setStartButton] = useState(false);
-  const [gameplay, setGameplay] = useState(false);
   const [gameData, setGameData] = useState();
+  const navigate = useNavigate(); // Hook for navigating programmatically
 
   useEffect(() => {
     if (socket) {
       console.log(`Connected to game: ${gameCode} with socket ID: ${socket.id}`);
       if (gameCode === socket.id) setStartButton(true);
 
-
       socket.on("gameStarted", ({ gameInfo }) => {
-        setGameData(gameInfo);
-        setGameplay(true);
+        setGameData(gameInfo); // Save the game data
+        navigate(`/gameplay/${gameCode}/live-gameplay`, { state: { gameInfo } }); // Navigate to the Gameplay screen, passing the game data
       });
 
- 
       return () => {
         socket.off("gameStarted");
       };
     }
-  }, [socket]); // Only re-run if `socket` changes
+  }, [socket, gameCode, navigate]); // Dependencies: socket, gameCode, navigate
 
   const handleStartGame = () => {
     if (socket) {
@@ -39,7 +37,6 @@ const Lobby = ({ socket }) => {
       <p>Game Code: {gameCode}</p>
       <p>Socket ID: {socket.id}</p>
       {startButton && <button onClick={handleStartGame}>Start Game</button>}
-      {gameplay && <Gameplay gameData={gameData} socket={socket}/>}
     </div>
   );
 };
