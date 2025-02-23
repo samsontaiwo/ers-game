@@ -29,7 +29,7 @@ const dealCards = (players) => {
 class ERSGame {
     constructor(players) {
         this.players = players; //array of player IDs
-        this.hands = dealCards(players);
+        this.hands = {};
         this.pile = [];
         this.currentTurn = 0;
         this.faceCardChallenge = null;
@@ -46,6 +46,10 @@ class ERSGame {
         this.players.push(playerId);
 
     }}
+
+    assignCards() {
+      this.hands = dealCards(this.players)
+    }
 
     /**
    * Handles a player playing a card.
@@ -102,11 +106,12 @@ ERSGame.prototype.slap = function (playerId) {
     return { success: false, message: "Invalid slap!" };
   };
 
-  ERSGame.prototype.checkWin = function () {
-    let winner = this.players.find(player => this.hands[player].length === 52);
-    return winner ? { winner } : null;
-  };
+ERSGame.prototype.checkWin = function () {
+  let winner = this.players.find(player => this.hands[player].length === 52);
+  return winner ? { winner } : null;
+};
 
+module.exports = ERSGame;
 
 
 

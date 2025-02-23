@@ -16,12 +16,15 @@ io.on("connection", (socket) => {
     
     socket.on("createGame", (players) => {
         games[socket.id] = new ERSGame(players);
-        io.emit("gameStarted", { gameId: socket.id });
+        socket.join(socket.id); //joins the lobby
+        console.log(games)
+        
     });
 
-    socket.on("joinGame", (gameId) => {
+    socket.on("joinGame", ({gameId, playerId}) => {
         let game = games[gameId];
         if (!game) {
+            console.log('not working');
           // If the game doesn't exist, send an error message
           socket.emit("error", { message: "Game not found!" });
           return;
@@ -29,9 +32,18 @@ io.on("connection", (socket) => {
       
         
         game.addPlayer(socket.id);  
-      
-        io.emit("playerJoined", { gameId, playerId: socket.id });
+        console.log(games);
+        socket.join(gameId);
     });
+
+    socket.on("startGame", (gameId) => {
+        let game = games[gameId];
+        if(!game) return;
+
+        game.assignCards();
+        console.log(game.players.length)
+        io.to(gameId).emit('gameStarted', {playersLength: game.players.length})
+    })
 
     socket.on("playCard", (gameId, playerId) => {
         let game = games[gameId];

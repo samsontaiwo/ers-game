@@ -20,6 +20,14 @@ const Homepage = ({ socket }) => {  // Receive socket as a prop
 
     const handleSubmitGameCode = () => {
         console.log("Game code entered:", gameCode);
+
+        if(socket) {
+            socket.emit('joinGame', {
+                gameId: gameCode,
+                playerId: socket.id
+            })
+        }
+
         setIsModalOpen(false);
         navigate(`/lobby/${gameCode}`);
     };
@@ -29,6 +37,11 @@ const Homepage = ({ socket }) => {  // Receive socket as a prop
             const createdGameCode = socket.id;  
             setGameCode(createdGameCode);
             console.log("Game created with code:", createdGameCode);
+
+            if (socket) {
+                socket.emit("createGame", [socket.id]);  
+            }
+
             navigate(`/lobby/${createdGameCode}`);
         }
     };
