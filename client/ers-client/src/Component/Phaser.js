@@ -100,11 +100,25 @@ const PhaserGame = ({ players, socket }) => {
             .on('pointerdown', () => {
                 console.log(`${players[index]} flipped!`);
                 // Add logic for Flip action here
+                socket.emit('playCard', {
+                    gameId: players[0], playerId: socket.id
+                })
             });
-        });
 
-        this.cameras.main.setBackgroundColor('#7FFFD4');
-    }
+            // Create the pile in the center of the board
+            const pileWidth = 100;
+            const pileHeight = 150;
+            const pileX = centerX; // Center horizontally
+            const pileY = centerY; // Center vertically
+
+            // Add a visual representation of the pile (a rectangle or image)
+            this.add.rectangle(pileX, pileY, pileWidth, pileHeight, 0x888888).setAlpha(0.7); // Gray pile
+            const pileCardBack = this.add.image(pileX, pileY, 'backOfCard').setInteractive();
+            pileCardBack.setDisplaySize(pileWidth, pileHeight); // Scale image to match the pile size
+                });
+
+                this.cameras.main.setBackgroundColor('#7FFFD4');
+            }
     
     
     

@@ -17,7 +17,8 @@ io.on("connection", (socket) => {
     socket.on("createGame", (players) => {
         games[socket.id] = new ERSGame(players);
         socket.join(socket.id); //joins the lobby
-        console.log(games)
+        let game = games[socket.id];
+        
         
     });
 
@@ -41,14 +42,18 @@ io.on("connection", (socket) => {
         if(!game) return;
 
         game.assignCards();
+
+        console.log(game);
+
         io.to(gameId).emit('gameStarted', {gameInfo: game})
     })
 
-    socket.on("playCard", (gameId, playerId) => {
+    socket.on("playCard", ({gameId, playerId}) => {
         let game = games[gameId];
         if (!game) return;
     
         let result = game.playCard(playerId);
+        console.log(result);
         io.emit("cardPlayed", { gameId, playerId, result });
     
         let winCheck = game.checkWin();

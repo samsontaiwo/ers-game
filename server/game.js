@@ -42,6 +42,8 @@ class ERSGame {
         return this.players[this.currentTurn];
     }
 
+  
+
     addPlayer(playerId){{
         this.players.push(playerId);
 
