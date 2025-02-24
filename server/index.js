@@ -3,6 +3,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 
 const ERSGame = require("./game");
+const getCardImg = require("./api");
 require("dotenv").config();
 
 const app = express();
@@ -53,8 +54,9 @@ io.on("connection", (socket) => {
         if (!game) return;
     
         let result = game.playCard(playerId);
-        console.log(result);
-        io.emit("cardPlayed", { gameId, playerId, result });
+        let cardImg = getCardImg(result);
+        console.log(result, cardImg);
+        io.to(gameId).emit("cardPlayed", { gameId, playerId, result, cardImg });
     
         let winCheck = game.checkWin();
         if (winCheck) io.emit("gameWon", winCheck);

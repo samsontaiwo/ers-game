@@ -60,7 +60,7 @@ class ERSGame {
 
     playCard(playerId) {
         if (playerId !== this.getCurrentPlayer()){
-            return { error: "Not your turn!" }
+            return {  success : false }
         }
 
         let card = this.hands[playerId].shift(); // Remove top card
