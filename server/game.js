@@ -63,21 +63,45 @@ class ERSGame {
         let card = this.hands[playerId].shift(); // Remove top card
         this.pile.push(card); // Add to pile
 
-        if (["J", "Q", "K", "A"].includes(card.rank)) {
-            this.faceCardChallenge = { rank: card.rank, challenger: playerId };
-            this.forcedTurn = punishment[card.rank];
-            this.nextTurn();
-        } else {
-            if(this.forcedTurn === 0){
-              this.nextTurn();
-            }else{
-              this.forcedTurn -= 1;
-              if(this.forcedTurn === 0) this.nextTurn();
-            }
-        }
-          console.log(this.forcedTurn);
-      
+        // Reset challenge if 10 is played
+        if (card.rank === "10") {
+          this.faceCardChallenge = null;
+          this.forcedTurn = 0;
+          this.nextTurn();
           return { success: true, card };
+        }
+
+        if (["J", "Q", "K", "A"].includes(card.rank)) {
+          this.faceCardChallenge = { rank: card.rank, challenger: playerId };
+          this.forcedTurn = punishment[card.rank];
+          this.nextTurn();
+          return { success: true, card };
+        }
+
+        if(this.forcedTurn > 0){
+          this.forcedTurn--;
+
+          if(this.forcedTurn === 0){
+            this.nextTurn();
+          }
+
+          if(this.forcedTurn === 0 && this.faceCardChallenge){
+            let winner = this.faceCardChallenge.challenger;
+            this.hands[winner] = [...this.hands[winner], ...this.pile];
+            this.pile = [];
+            this.faceCardChallenge = null; // Reset challenge
+
+            this.currentTurn = this.players.indexOf(winner);
+          }
+
+          return { success: true, card };
+        }
+
+        this.nextTurn();
+        return { success: true, card };
+
+       
+           
         }
 
         nextTurn() {
