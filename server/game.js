@@ -26,18 +26,19 @@ const dealCards = (players) => {
   return hands;
 }
 
+const punishment = {J: 1, Q: 2, K: 3, A: 4};
+
 class ERSGame {
     constructor(players) {
         this.players = players; //array of player IDs
         this.hands = {};
         this.pile = [];
         this.currentTurn = 0;
+        this.forcedTurn = 0;
         this.faceCardChallenge = null;
     }
 
-    /**
-   * Gets the current player’s ID.
-   */
+
     getCurrentPlayer(){
         return this.players[this.currentTurn];
     }
@@ -53,10 +54,6 @@ class ERSGame {
       this.hands = dealCards(this.players)
     }
 
-    /**
-   * Handles a player playing a card.
-   * @param {string} playerId - The player playing the card.
-   */
 
     playCard(playerId) {
         if (playerId !== this.getCurrentPlayer()){
@@ -68,9 +65,17 @@ class ERSGame {
 
         if (["J", "Q", "K", "A"].includes(card.rank)) {
             this.faceCardChallenge = { rank: card.rank, challenger: playerId };
-          } else {
+            this.forcedTurn = punishment[card.rank];
             this.nextTurn();
-          }
+        } else {
+            if(this.forcedTurn === 0){
+              this.nextTurn();
+            }else{
+              this.forcedTurn -= 1;
+              if(this.forcedTurn === 0) this.nextTurn();
+            }
+        }
+          console.log(this.forcedTurn);
       
           return { success: true, card };
         }
