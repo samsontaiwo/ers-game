@@ -62,7 +62,7 @@ io.on("connection", (socket) => {
         if (winCheck) io.emit("gameWon", winCheck);
     });
 
-    socket.on("slap", (gameId, playerId) => {
+    socket.on("slap", ({gameId, playerId}) => {
         let game = games[gameId];
         if (!game) return;
     

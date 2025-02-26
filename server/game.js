@@ -104,10 +104,10 @@ class ERSGame {
            
         }
 
-        nextTurn() {
-            this.currentTurn = (this.currentTurn + 1) % this.players.length;
-        }
+    nextTurn() {
+        this.currentTurn = (this.currentTurn + 1) % this.players.length;
     }
+  }
 
 
 const isValidSlap = (pile) => {
@@ -117,6 +117,7 @@ const isValidSlap = (pile) => {
 
     let top = pile[pile.length - 1];
     let second = pile[pile.length - 2];
+    console.log(top.rank);
 
     // Double
     if (top.rank === second.rank) return true;
@@ -126,14 +127,21 @@ const isValidSlap = (pile) => {
         let third = pile[pile.length - 3];
         if (top.rank === third.rank) return true;
     }
+
+    // Seven
+    if(top.rank == "7") return true;
+    return false;
 }
 
 ERSGame.prototype.slap = function (playerId) {
     if (isValidSlap(this.pile)) {
+      console.log('yep you can slap this')
       this.hands[playerId] = [...this.hands[playerId], ...this.pile];
       this.pile = [];
+      this.currentTurn = this.players.indexOf(playerId);
       return { success: true, message: `${playerId} won the pile!` };
     }
+    console.log('what are u doing NOOOO')
     return { success: false, message: "Invalid slap!" };
   };
 
