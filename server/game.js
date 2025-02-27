@@ -111,6 +111,7 @@ class ERSGame {
 
 
 const isValidSlap = (pile) => {
+    console.log(pile)
     if(pile.length < 2) {
         return false;
     }

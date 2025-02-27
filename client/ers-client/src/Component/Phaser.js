@@ -100,6 +100,7 @@ const PhaserGame = ({ players, socket }) => {
 
         // Determine positions based on the number of players
         const positions = getPlayerPositions(players.length, centerX, centerY, padding, this.cameras.main.width, this.cameras.main.height);
+      
 
         // Create player slots at the determined positions
         positions.forEach((position, index) => {
@@ -128,6 +129,11 @@ const PhaserGame = ({ players, socket }) => {
             // Add a visual representation of the pile (initially gray)
             const pileRectangle = this.add.rectangle(pileX, pileY, pileWidth, pileHeight, 0x888888).setAlpha(0.7); // Gray pile
             pileRef.current = this.add.image(pileX, pileY, ).setDisplaySize(pileWidth, pileHeight);
+
+            if(index%2 !== 0){
+                cardBack.rotation = Math.PI / 2;  // Rotate left by 90 degrees (π/2 radians)
+                cardBack.rotation = Math.PI / 2;  // Rotate right by 90 degrees (π/2 radians)
+            }
         
            
         });

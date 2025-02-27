@@ -41,63 +41,54 @@ export function addCardInteractions(scene, cardBack, position, slotWidth, slotHe
 
     });
 
+    
     if (playerOrder[0] === socket.id) {
-        if (!scene.textures.exists('LH') || !scene.textures.exists('RH')) {
-            console.error('LH or RH texture not loaded yet!');
+        if (!scene.textures.exists('LH')) {
+            console.error('LH texture not loaded yet!');
             return;
         }
-
+    
         const leftHand = scene.add.image(450, 765, 'LH')
             .setDisplaySize(slotWidth, slotHeight)
             .setDepth(2)
-            .setInteractive();
-
-        const rightHand = scene.add.image(750, 765, 'RH')
-            .setDisplaySize(slotWidth, slotHeight)
-            .setDepth(2)
-            .setInteractive();
-
+            .setInteractive()
+            .on('pointerdown', () => handleHandClick(leftHand));
+    
         const leftHandOriginal = { x: leftHand.x, y: leftHand.y };
-        const rightHandOriginal = { x: rightHand.x, y: rightHand.y };
-
-        let hasSlapped = false; // Flag to prevent repeated slap actions
-
-        scene.input.setDraggable([leftHand, rightHand]);
-
-        scene.input.on('drag', (pointer, gameObject, dragX, dragY) => {
-            gameObject.x = dragX;
-            gameObject.y = dragY;
-
-            // Only trigger the slap once
-            if (gameObject === rightHand && !hasSlapped && isOverlapping(gameObject, pileRef.current)) {
-                console.log("Slap detected!");
-                socket.emit('slap', { gameId: players[0], playerId: socket.id });
-                hasSlapped = true; // Set flag to true after slap action
-            }
-        });
-
-        scene.input.on('dragend', (pointer, gameObject) => {
+    
+        // Handle the left hand click animation
+        function handleHandClick(hand) {
+            const centerX = scene.cameras.main.width / 2;
+            const centerY = scene.cameras.main.height / 2;
+    
+            // Animate the hand to the center
             scene.tweens.add({
-                targets: gameObject,
-                x: gameObject === leftHand ? leftHandOriginal.x : rightHandOriginal.x,
-                y: gameObject === leftHand ? leftHandOriginal.y : rightHandOriginal.y,
-                duration: 300,
-                ease: 'Quad.easeOut'
+                targets: hand, // Animate the actual image
+                x: centerX,
+                y: centerY,
+                duration: 500, // Time to move to the center
+                ease: 'Quad.easeInOut',
+                onComplete: () => {
+                    // Wait for 2 seconds before returning to the original position
+                    scene.time.delayedCall(2000, () => {
+                        // Animate the hand back to its original position
+                        scene.tweens.add({
+                            targets: hand, // Animate the actual image
+                            x: leftHandOriginal.x,
+                            y: leftHandOriginal.y,
+                            duration: 500, // Time to return to the original position
+                            ease: 'Quad.easeOut'
+                        });
+                    });
+    
+                    // Trigger the slap action when hand reaches the center
+                    console.log("Slap detected!");
+                    socket.emit('slap', { gameId: players[0], playerId: socket.id });
+                }
             });
-
-            // Reset flag when dragging ends, allowing for the slap action again if needed
-            if (gameObject === rightHand) {
-                hasSlapped = false; // Reset after drag ends to allow future slaps
-            }
-        });
-
-        function isOverlapping(hand, pile) {
-            if (!pile) return false; // Ensure pile exists
-
-            const handBounds = hand.getBounds();
-            const pileBounds = pile.getBounds();
-
-            return Phaser.Geom.Intersects.RectangleToRectangle(handBounds, pileBounds);
         }
     }
+    
+    
+    
 }
