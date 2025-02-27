@@ -5,12 +5,16 @@ import AssetLoader from '../Function/AssetLoader';
 import { getPlayerPositions } from '../Function/PlayerPositions';
 import { getPlayerOrder } from '../Function/PlayerOrder';
 import { addCardInteractions } from '../Function/CardInteractions';
+import { animateCardFlip } from '../Function/animateCardFlip';
 
 const PhaserGame = ({ players, socket }) => {
 
     const currCardImgRef = useRef(''); // Create a ref instead of state
     const [pileCardImage, setPileCardImage] = useState(null); // State to track the pile card image
     const pileRef = useRef(null); // Reference to store the pile image
+    const [targetTime, setTargetTime] = useState();
+    const gameRef = useRef(null);
+    const [isGameInitialized, setIsGameInitialized] = useState(false);
 
     useEffect(() => {
         const config = {
@@ -26,20 +30,40 @@ const PhaserGame = ({ players, socket }) => {
            
         };
 
-        const game = new Phaser.Game(config);
+        gameRef.current = new Phaser.Game(config);
 
-        socket.on('cardPlayed', ({ gameId, playerId, result, cardImg }) => {
+        gameRef.current.events.once('boot', () => {
+            setIsGameInitialized(true);
+        });
+
+        socket.on('cardPlayed', ({ gameId, playerId, result, cardImg, targetTime }) => {
             if (result.success === false) return;
 
             // Directly use the image URL
             currCardImgRef.current = cardImg;
+            setPileCardImage(cardImg)
+            setTargetTime(targetTime);
+            if (!result.success) return;
+            animateCardFlip(playerId,  cardImg, players, gameRef.current, pileRef, socket,)
             
         });
 
         return () => {
-            game.destroy(true);
+            gameRef.current.destroy(true);
         };
     }, [players]); // Reinitialize Phaser if players change
+
+    useEffect(() => {
+        console.log('just checking rq')
+        if (currCardImgRef.current) {
+            console.log('wait for me')
+            setTimeout(() => {
+                pileRef.current.setTexture(currCardImgRef.current);
+                pileRef.current.setDisplaySize(150, 250); // Ensure correct size after texture change
+            }, 2000);
+        }
+    }, [pileCardImage]); 
+    
 
 
     
@@ -111,16 +135,18 @@ const PhaserGame = ({ players, socket }) => {
 
 
     function update() {
-        if (pileRef.current && currCardImgRef.current) {
+        // if (pileRef.current && currCardImgRef.current) {
     
-            // Get the width and height of the pile container
-            const pileWidth = pileRef.current.displayWidth;
-            const pileHeight = pileRef.current.displayHeight;
+        //     // Get the width and height of the pile container
+        //     const pileWidth = pileRef.current.displayWidth;
+        //     const pileHeight = pileRef.current.displayHeight;
     
-            // Resize the image to fit inside the pile container while maintaining its aspect ratio
-            pileRef.current.setDisplaySize(150, 250); // Resize to fit the container
-            pileRef.current.setTexture(currCardImgRef.current);  // Set the new texture
-        }
+        //     // Resize the image to fit inside the pile container while maintaining its aspect ratio
+        //     pileRef.current.setDisplaySize(150, 250); // Resize to fit the container
+        //     setTimeout(() => {
+        //         pileRef.current.setTexture(currCardImgRef.current);
+        //     }, 2000);  // Set the new texture
+        // }
     }
 
     return <div id="phaser-container"></div>;

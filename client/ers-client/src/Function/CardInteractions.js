@@ -39,60 +39,6 @@ export function addCardInteractions(scene, cardBack, position, slotWidth, slotHe
             gameId: players[0], playerId: socket.id
         });
 
-        // Create the moving card
-        const movingCard = scene.add.image(position.x, position.y - 5, 'backOfCard')
-            .setDisplaySize(slotWidth, slotHeight)
-            .setDepth(1);
-
-        // Move the card toward the pile
-        scene.tweens.add({
-            targets: movingCard,
-            x: centerX,
-            y: centerY,
-            scaleX: 0.8,  // Slight shrink effect
-            scaleY: 0.8,
-            angle: 180,   // Half-spin
-            duration: 800,
-            ease: 'Quad.easeInOut',
-            onComplete: () => {
-                // Flip animation (shrink width to 0)
-                scene.tweens.add({
-                    targets: movingCard,
-                    scaleX: 0,
-                    duration: 300,
-                    ease: 'Linear',
-                    onComplete: () => {
-                        // Change texture when fully flipped
-                        if (currCardImgRef.current) {
-                            movingCard.setTexture(currCardImgRef.current);
-                        }
-
-                        // Expand width back (flip effect)
-                        scene.tweens.add({
-                            targets: movingCard,
-                            scaleX: 0.8,
-                            duration: 300,
-                            ease: 'Linear',
-                            onComplete: () => {
-                                // Final move onto pile
-                                scene.tweens.add({
-                                    targets: movingCard,
-                                    scaleX: 1,
-                                    scaleY: 1,
-                                    duration: 300,
-                                    ease: 'Quad.easeOut',
-                                    onComplete: () => {
-                                        // Update pile texture
-                                        pileRef.current.setTexture(currCardImgRef.current);
-                                        movingCard.destroy(); // Remove moving card
-                                    }
-                                });
-                            }
-                        });
-                    }
-                });
-            }
-        });
     });
 
     if (playerOrder[0] === socket.id) {
