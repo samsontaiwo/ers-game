@@ -1,43 +1,34 @@
-export function getPlayerPositions(totalPlayers, centerX, centerY, padding, cameraWidth, cameraHeight) {
+export function getPlayerPositions(playerOrder, centerX, centerY, padding, cameraWidth, cameraHeight, ) {
     let positions = [];
+    const totalPlayers = playerOrder.length;
 
     if (totalPlayers === 1) {
         positions = [
-            { x: centerX, y: cameraHeight - padding } // Single player at the bottom
+            { x: centerX, y: cameraHeight - padding, LHX: 450, LHY: 765, rot: 0,  } // Single player at the bottom
         ];
     } else if (totalPlayers === 2) {
         positions = [
-            { x: centerX, y: cameraHeight - padding }, // Bottom
-            { x: centerX, y: padding }  // Top
+            { x: centerX, y: cameraHeight - padding, LHX: 450, LHY: 765, rot: 0,  }, // Bottom
+            { x: centerX, y: padding, LHX: 750, LHY: 135, rot: 1, }  // Top
         ];
     } else if (totalPlayers === 3) {
         positions = [
-            { x: centerX, y: cameraHeight - padding }, // Bottom
-            { x: padding, y: centerY }, // Left
-            { x: centerX, y: padding }  // Top
+            { x: centerX, y: cameraHeight - padding, LHX: 450, LHY: 765, rot: 0 }, // Bottom
+            { x: padding, y: centerY, LHX: 140, LHY: 315, rot: 0.5,  }, // Left
+            { x: centerX, y: padding, LHX: 750, LHY: 135, rot: 1,  }  // Top
         ];
     } else if (totalPlayers === 4) {
         positions = [
-            { x: centerX, y: cameraHeight - padding }, // Bottom
-            { x: padding, y: centerY }, // Left
-            { x: centerX, y: padding },  // Top
-            { x: cameraWidth - padding, y: centerY }  // Right
+            { x: centerX, y: cameraHeight - padding, LHX: 450, LHY: 765, rot: 0 }, // Bottom
+            { x: padding, y: centerY, LHX: 140, LHY: 315, rot: 0.5,}, // Left
+            { x: centerX, y: padding, LHX: 750, LHY: 135, rot: 1, },  // Top
+            { x: cameraWidth - padding, y: centerY, LHX: 1060, LHY: 585, rot: -0.5 }  // Right
         ];
     }
 
-    // Ensure correct left-right positioning for 3 or 4 players
-    // if (totalPlayers === 3) {
-    //     positions[1].x = cameraWidth - padding;
-    //     positions[1].y = centerY;
-    // }
-    // if (totalPlayers == 4) {
-    //     positions[3].x = padding;
-    //     positions[3].y = centerY;
-    // }
-
-    // Rotate the card at left (index 1) and right (index 3) positions by 90 degrees
-    // This ensures only the image at these positions is rotated when the card is displayed
-    
+    positions.forEach((pos, ind) => {
+        pos.name = playerOrder[ind]
+    })
 
     return positions;
 }

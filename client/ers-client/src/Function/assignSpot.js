@@ -10,7 +10,7 @@ export function assignSpot(players, socketId, cameraWidth, cameraHeight) {
     const centerY = cameraHeight / 2; // 400
 
 
-    const positions = getPlayerPositions(players.length, centerX, centerY, padding, cameraWidth, cameraHeight);
+    const positions = getPlayerPositions(players, centerX, centerY, padding, cameraWidth, cameraHeight);
 
     let order = getPlayerOrder(players, socketId);
 

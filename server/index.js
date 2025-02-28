@@ -68,7 +68,7 @@ io.on("connection", (socket) => {
         if (!game) return;
     
         let result = game.slap(playerId);
-        io.emit("slapResult", { gameId, playerId, result });
+        io.to(gameId).emit("slapResult", { gameId, playerId, result });
     });
     
     socket.on("disconnect", () => {

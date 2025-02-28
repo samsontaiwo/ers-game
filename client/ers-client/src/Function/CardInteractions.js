@@ -1,4 +1,5 @@
 import Phaser from "phaser";
+import { createLeftHand } from "./LeftHandInteraction";
 
 export function addCardInteractions(scene, cardBack, position, slotWidth, slotHeight, centerX, centerY, socket, players, currCardImgRef, pileRef, playerOrder) {
     // Create a copy of the card for the hover effect (tilted)
@@ -41,54 +42,10 @@ export function addCardInteractions(scene, cardBack, position, slotWidth, slotHe
 
     });
 
+    createLeftHand(scene, position, slotWidth, slotHeight, socket, players);
+
     
-    if (playerOrder[0] === socket.id) {
-        if (!scene.textures.exists('LH')) {
-            console.error('LH texture not loaded yet!');
-            return;
-        }
-    
-        const leftHand = scene.add.image(450, 765, 'LH')
-            .setDisplaySize(slotWidth, slotHeight)
-            .setDepth(2)
-            .setInteractive()
-            .on('pointerdown', () => handleHandClick(leftHand));
-    
-        const leftHandOriginal = { x: leftHand.x, y: leftHand.y };
-    
-        // Handle the left hand click animation
-        function handleHandClick(hand) {
-            const centerX = scene.cameras.main.width / 2;
-            const centerY = scene.cameras.main.height / 2;
-    
-            // Animate the hand to the center
-            scene.tweens.add({
-                targets: hand, // Animate the actual image
-                x: centerX,
-                y: centerY,
-                duration: 500, // Time to move to the center
-                ease: 'Quad.easeInOut',
-                onComplete: () => {
-                    // Wait for 2 seconds before returning to the original position
-                    scene.time.delayedCall(2000, () => {
-                        // Animate the hand back to its original position
-                        scene.tweens.add({
-                            targets: hand, // Animate the actual image
-                            x: leftHandOriginal.x,
-                            y: leftHandOriginal.y,
-                            duration: 500, // Time to return to the original position
-                            ease: 'Quad.easeOut'
-                        });
-                    });
-    
-                    // Trigger the slap action when hand reaches the center
-                    console.log("Slap detected!");
-                    socket.emit('slap', { gameId: players[0], playerId: socket.id });
-                }
-            });
-        }
-    }
-    
+
     
     
 }

@@ -6,6 +6,7 @@ import { getPlayerPositions } from '../Function/PlayerPositions';
 import { getPlayerOrder } from '../Function/PlayerOrder';
 import { addCardInteractions } from '../Function/CardInteractions';
 import { animateCardFlip } from '../Function/animateCardFlip';
+import { handleHandClick } from '../Function/handAnimation';
 
 const PhaserGame = ({ players, socket }) => {
 
@@ -15,6 +16,8 @@ const PhaserGame = ({ players, socket }) => {
     const [targetTime, setTargetTime] = useState();
     const gameRef = useRef(null);
     const [isGameInitialized, setIsGameInitialized] = useState(false);
+    const gamePositionRef = useRef(null);
+    const leftHandRef = useRef(null);
 
     useEffect(() => {
         const config = {
@@ -47,6 +50,22 @@ const PhaserGame = ({ players, socket }) => {
             animateCardFlip(playerId,  cardImg, players, gameRef.current, pileRef, socket,)
             
         });
+
+     
+        socket.on('slapResult', ({ gameId, playerId, result }) => {
+            const scene = leftHandRef.current[playerId].hand.scene ;
+            console.log(scene, 'pls work')
+            
+            
+        
+            const { hand, originalPos } = scene.leftHands[playerId]; // Get the correct hand
+            console.log('the correct hand is ', originalPos)
+        
+            handleHandClick(hand, scene, socket, players, originalPos);
+
+
+        });
+        
 
         return () => {
             gameRef.current.destroy(true);
@@ -99,7 +118,8 @@ const PhaserGame = ({ players, socket }) => {
         const totalPlayers = players.length || 1; // Ensure at least one player
 
         // Determine positions based on the number of players
-        const positions = getPlayerPositions(players.length, centerX, centerY, padding, this.cameras.main.width, this.cameras.main.height);
+        const positions = getPlayerPositions(playerOrder, centerX, centerY, padding, this.cameras.main.width, this.cameras.main.height);
+        gamePositionRef.current = positions
       
 
         // Create player slots at the determined positions
@@ -117,6 +137,10 @@ const PhaserGame = ({ players, socket }) => {
             cardTilt.setAlpha(0);  // Initially hidden, only show when hovered
 
             addCardInteractions(this, cardBack, position, slotWidth, slotHeight, centerX, centerY, socket, players, currCardImgRef, pileRef, playerOrder);
+            if(this.leftHands){
+                console.log(this.leftHands)
+                leftHandRef.current = this.leftHands;  //lefthandIm
+            }
 
 
             
@@ -130,9 +154,8 @@ const PhaserGame = ({ players, socket }) => {
             const pileRectangle = this.add.rectangle(pileX, pileY, pileWidth, pileHeight, 0x888888).setAlpha(0.7); // Gray pile
             pileRef.current = this.add.image(pileX, pileY, ).setDisplaySize(pileWidth, pileHeight);
 
-            if(index%2 !== 0){
-                cardBack.rotation = Math.PI / 2;  // Rotate left by 90 degrees (π/2 radians)
-                cardBack.rotation = Math.PI / 2;  // Rotate right by 90 degrees (π/2 radians)
+            if(positions.length >= 3 && index % 2 !== 0){
+                cardBack.rotation = Math.PI / 2;
             }
         
            
@@ -141,18 +164,7 @@ const PhaserGame = ({ players, socket }) => {
 
 
     function update() {
-        // if (pileRef.current && currCardImgRef.current) {
-    
-        //     // Get the width and height of the pile container
-        //     const pileWidth = pileRef.current.displayWidth;
-        //     const pileHeight = pileRef.current.displayHeight;
-    
-        //     // Resize the image to fit inside the pile container while maintaining its aspect ratio
-        //     pileRef.current.setDisplaySize(150, 250); // Resize to fit the container
-        //     setTimeout(() => {
-        //         pileRef.current.setTexture(currCardImgRef.current);
-        //     }, 2000);  // Set the new texture
-        // }
+     
     }
 
     return <div id="phaser-container"></div>;
