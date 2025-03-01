@@ -53,15 +53,27 @@ const PhaserGame = ({ players, socket }) => {
 
      
         socket.on('slapResult', ({ gameId, playerId, result }) => {
-            const scene = leftHandRef.current[playerId].hand.scene ;
-            console.log(scene, 'pls work')
+            console.log('ok i just slapped');
+            const scene = leftHandRef.current[playerId].hand.scene; 
+            // console.log(scene, 'pls work')
             
+            const site = gamePositionRef.current; //array
+            let originalPos;
+            // console.log(site, 'site');
+
+            for(let i=0; i<site.length; i++){
+                if(site[i].name == playerId){
+                    originalPos = {x: site[i].LHX, y: site[i].LHY }
+                    break;
+                }
+            }
+            console.log(originalPos);
             
         
-            const { hand, originalPos } = scene.leftHands[playerId]; // Get the correct hand
-            console.log('the correct hand is ', originalPos)
-        
-            handleHandClick(hand, scene, socket, players, originalPos);
+            const { hand } = scene.leftHands[playerId]; // Get the correct hand
+            // console.log('the correct hand is ', originalPos)
+            
+            handleHandClick(hand, scene, socket, players, originalPos, site);
 
 
         });
@@ -73,9 +85,8 @@ const PhaserGame = ({ players, socket }) => {
     }, [players]); // Reinitialize Phaser if players change
 
     useEffect(() => {
-        console.log('just checking rq')
         if (currCardImgRef.current) {
-            console.log('wait for me')
+            // console.log('wait for me')
             setTimeout(() => {
                 pileRef.current.setTexture(currCardImgRef.current);
                 pileRef.current.setDisplaySize(150, 250); // Ensure correct size after texture change

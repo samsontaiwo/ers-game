@@ -19,7 +19,6 @@ const Homepage = ({ socket }) => {  // Receive socket as a prop
     };
 
     const handleSubmitGameCode = () => {
-        console.log("Game code entered:", gameCode);
 
         if(socket) {
             socket.emit('joinGame', {
@@ -29,14 +28,17 @@ const Homepage = ({ socket }) => {  // Receive socket as a prop
         }
 
         setIsModalOpen(false);
+        localStorage.setItem("gameId", gameCode);
+
         navigate(`/lobby/${gameCode}`);
     };
 
     const handleCreateGameClick = () => {
         if (socket) {
             const createdGameCode = socket.id;  
+            localStorage.setItem("gameId", createdGameCode);
+
             setGameCode(createdGameCode);
-            console.log("Game created with code:", createdGameCode);
 
             if (socket) {
                 socket.emit("createGame", [socket.id]);  

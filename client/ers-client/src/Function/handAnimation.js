@@ -2,7 +2,6 @@
 
 export function handleHandClick(hand, scene, socket, players, leftHandOriginal) {
 
-
     const centerX = scene.cameras.main.width / 2;
     const centerY = scene.cameras.main.height / 2;
 

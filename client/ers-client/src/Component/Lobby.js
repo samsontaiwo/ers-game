@@ -10,7 +10,7 @@ const Lobby = ({ socket }) => {
 
   useEffect(() => {
     if (socket) {
-      console.log(`Connected to game: ${gameCode} with socket ID: ${socket.id}`);
+      // console.log(`Connected to game: ${gameCode} with socket ID: ${socket.id}`);
       if (gameCode === socket.id) setStartButton(true);
 
       socket.on("gameStarted", ({ gameInfo }) => {

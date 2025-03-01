@@ -5,7 +5,7 @@ import { useState } from 'react';
 const Gameplay = ({socket}) => {
     const location = useLocation();
     const { gameInfo } = location.state || {}; // Access the game data passed from the Lobby
-    console.log(gameInfo)
+    // console.log(gameInfo)
     
 
     return (

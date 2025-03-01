@@ -10,7 +10,7 @@ let ind = 0;
 export function createLeftHand(scene, pos, slotWidth, slotHeight, socket, players) {
 
     
-
+    
 
     if (!scene.textures.exists('LH')) {
         console.error('LH texture not loaded yet!');
@@ -33,7 +33,9 @@ export function createLeftHand(scene, pos, slotWidth, slotHeight, socket, player
     if (pos.rot === 0) {
         leftHand.setInteractive()
             .on('pointerdown', () => {
-                socket.emit('slap', { gameId: players[0], playerId: socket.id });
+                // socket.emit('slap', { gameId: players[0], playerId: socket.id });
+                const gameId = localStorage.getItem("gameId");
+                socket.emit('slap', { gameId: gameId, playerId: socket.id });
                 handleHandClick(leftHand, scene, socket, players, leftHandOriginal)
             });
 
@@ -49,6 +51,8 @@ export function createLeftHand(scene, pos, slotWidth, slotHeight, socket, player
         scene.leftHands = {}; // Initialize the hands object if it doesn't exist
     }
 
+    console.log(players, 'players')
+    
 
     
     scene.leftHands[players[ind]] = { hand: leftHand, originalPos: leftHandOriginal };

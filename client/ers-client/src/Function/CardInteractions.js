@@ -42,7 +42,7 @@ export function addCardInteractions(scene, cardBack, position, slotWidth, slotHe
 
     });
 
-    createLeftHand(scene, position, slotWidth, slotHeight, socket, players);
+    createLeftHand(scene, position, slotWidth, slotHeight, socket, playerOrder);
 
     
 
