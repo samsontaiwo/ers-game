@@ -70,6 +70,7 @@ io.on("connection", (socket) => {
         let result = game.slap(playerId);
         io.to(gameId).emit("slapResult", { gameId, playerId, result });
     });
+
     
     socket.on("disconnect", () => {
         console.log("Player disconnected: " + socket.id);

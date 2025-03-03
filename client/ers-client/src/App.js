@@ -5,6 +5,7 @@ import Homepage from './Component/Homepage';
 import Lobby from './Component/Lobby';
 import './App.css';
 import Gameplay from './Component/Gameplay';
+import Rules from './Component/Rules';
 
 const App = () => {
     const [socket, setSocket] = useState(null);
@@ -25,6 +26,7 @@ const App = () => {
                 <Route path="/" element={<Homepage socket={socket} />} />
                 <Route path="/lobby/:gameCode" element={<Lobby socket={socket} />} />
                 <Route path="/gameplay/:gameCode/live-gameplay" element={<Gameplay socket={socket}/>}/>
+                <Route path="/rules" element={<Rules/>}/>
             </Routes>
         </Router>
       </div>

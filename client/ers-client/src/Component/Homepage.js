@@ -48,11 +48,15 @@ const Homepage = ({ socket }) => {  // Receive socket as a prop
         }
     };
 
+    const handleRules = () => {
+        navigate('/rules');
+    }
+
     return (
         <div id='homepage'>
             <div id='button-div'>
                 <button className="homepage-buttons" onClick={handleCreateGameClick}>Create Game</button>
-                <button className="homepage-buttons">Rules</button>
+                <button className="homepage-buttons" onClick={handleRules}>Rules</button>
                 <button className="homepage-buttons" onClick={handleJoinGameClick}>Join Game</button>
             </div>
     

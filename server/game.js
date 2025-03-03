@@ -106,6 +106,7 @@ class ERSGame {
 
     nextTurn() {
         this.currentTurn = (this.currentTurn + 1) % this.players.length;
+        
     }
   }
 
