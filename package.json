@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/samsontaiwo/ers-game/issues"
   },
-  "homepage": "https://github.com/samsontaiwo/ers-game#readme"
+  "homepage": "https://github.com/samsontaiwo/ers-game#readme",
+  "dependencies": {
+    "framer-motion": "^12.4.10"
+  }
 }

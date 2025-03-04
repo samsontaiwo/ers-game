@@ -10,6 +10,7 @@
     background: linear-gradient(-45deg, #416482, #6E443B);
     background-size: 300% 300%;
     animation: bgAnimation 8s infinite alternate;
+    font-family: "Lilita One", serifz;
 }
 
 /* Background Animation */
@@ -100,3 +101,5 @@
     padding: 10px;
     line-height: 1.4;
 }
+
+
