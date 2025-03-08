@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import "../Rules.css";
 
 const rulesData = [
     { title: "Objective", info: "Win all the cards by reacting quickly and slapping the pile at the right moments." },

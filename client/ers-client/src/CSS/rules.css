@@ -2,7 +2,7 @@
 .rules-container {
     position: relative;
     width: 100%;
-    height: 900px;
+    height: 720px;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -49,8 +49,6 @@
     align-items: center;
     align-content: center;
     transform-style: preserve-3d;
-    /* width: 300px;
-    height: 250px; */
     width: 900px;
     height: 500px;
 }

@@ -15,8 +15,8 @@ let games = {};
 io.on("connection", (socket) => {
     console.log("A player connected: " + socket.id);
     
-    socket.on("createGame", (players) => {
-        games[socket.id] = new ERSGame(players);
+    socket.on("createGame", ({playerId}) => {
+        games[socket.id] = new ERSGame([playerId]);
         socket.join(socket.id); //joins the lobby
         let game = games[socket.id];
         
@@ -32,7 +32,6 @@ io.on("connection", (socket) => {
           return;
         }
       
-        
         game.addPlayer(socket.id);  
         console.log(games);
         socket.join(gameId);

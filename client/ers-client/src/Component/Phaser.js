@@ -13,7 +13,6 @@ const PhaserGame = ({ players, socket }) => {
     const currCardImgRef = useRef(''); // Create a ref instead of state
     const [pileCardImage, setPileCardImage] = useState(null); // State to track the pile card image
     const pileRef = useRef(null); // Reference to store the pile image
-    const [targetTime, setTargetTime] = useState();
     const gameRef = useRef(null);
     const [isGameInitialized, setIsGameInitialized] = useState(false);
     const gamePositionRef = useRef(null);
@@ -45,7 +44,6 @@ const PhaserGame = ({ players, socket }) => {
             // Directly use the image URL
             currCardImgRef.current = cardImg;
             setPileCardImage(cardImg)
-            setTargetTime(targetTime);
             if (!result.success) return;
             animateCardFlip(playerId,  cardImg, players, gameRef.current, pileRef, socket,)
             

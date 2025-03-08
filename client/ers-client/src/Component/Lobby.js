@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
-import Gameplay from "./Gameplay";
 
 const Lobby = ({ socket }) => {
   const { gameCode } = useParams();
   const [startButton, setStartButton] = useState(false);
-  const [gameData, setGameData] = useState();
   const navigate = useNavigate(); // Hook for navigating programmatically
 
   useEffect(() => {
@@ -14,7 +12,6 @@ const Lobby = ({ socket }) => {
       if (gameCode === socket.id) setStartButton(true);
 
       socket.on("gameStarted", ({ gameInfo }) => {
-        setGameData(gameInfo); // Save the game data
         navigate(`/gameplay/${gameCode}/live-gameplay`, { state: { gameInfo } }); // Navigate to the Gameplay screen, passing the game data
       });
 

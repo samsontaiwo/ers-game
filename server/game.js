@@ -19,6 +19,7 @@ const dealCards = (players) => {
     let hands = {};
     let playerCount = players.length;
 
+
     players.forEach((player, i) => {
         hands[player] = deck.filter((_, index) => index % playerCount === i);
     });

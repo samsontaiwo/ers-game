@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import io from 'socket.io-client'; // Import socket.io client
 import Homepage from './Component/Homepage';
 import Lobby from './Component/Lobby';
-import './App.css';
+import './CSS/main.css';
 import Gameplay from './Component/Gameplay';
 import Rules from './Component/Rules';
 
@@ -12,7 +12,7 @@ const App = () => {
 
     useEffect(() => {
         // Initialize the socket only once
-        const newSocket = io('https://ers-game.onrender.com'); // Replace with your server URL
+        const newSocket = io('http://localhost:3000/'); // Replace with server URL //https://ers-game.onrender.com
         setSocket(newSocket);
 
         // Cleanup on unmount
