@@ -1,0 +1,204 @@
+.setting-div {
+    box-shadow: 10px 10px 20px   rgba(0, 0, 0, 0.2);
+    height: 650px;
+    width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+  }
+  
+  .setting-div > section {
+    height: 650px;
+    width: 85%;
+    background: rgba(255, 255, 255, 0.4); 
+    border-radius: 15px; 
+    display: flex;
+    align-items: center;
+    /* justify-content: space-between; */
+    padding: 10px;
+    margin: 10px 0;
+    box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.2); 
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    opacity: 0;
+    animation: fadeIn 0.5s ease-in forwards;
+    backdrop-filter: blur(15px); 
+    border: 1px solid rgba(255, 255, 255, 0.4); 
+    position: relative;
+    z-index: 1; 
+    /* border: solid 3px black; */
+    flex-direction: column;
+  }
+  #copyGameCode {
+    margin-top: 15px;
+    /* border: solid; */
+  }
+  
+  
+  #copyGameCode > button {
+    all: unset;
+    cursor: pointer;
+    color: white;
+    background-color: #1FAB1C;
+    width: 50px;
+    height: 38px;
+    text-align: center;
+  }
+  
+  #copyGameCode > button:hover {
+    background-color: darkgreen;
+  }
+  
+  #copyGameCode > input{
+    height: 35px;
+  }
+  
+  #copyMessage {
+    position: fixed;
+    top: 90px;
+    color: #1FAB1C;
+  }
+  
+  #four-sett {
+    margin-top: 20px;
+    width: 86%;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  #lives, #timer, #autoshuffle {
+    display: flex;
+    flex-direction: column;
+    font-size: 20px;
+    align-items: center;
+    margin-top: 5px;
+  }
+  
+  #lives > div {
+    display: flex;
+    align-items: center;
+  }
+  
+  
+  .heart {
+    height: 40px;
+    width: 35px;
+    background-image: fill;
+  }
+  
+  .adjust-heart-buttons {
+    all: unset;
+    cursor: pointer;
+    margin-left: 5px;
+    font-size: 20px;
+  }
+  
+  .timer-options {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+  }
+  
+  .timer-button {
+    background-color: #f0f0f0;
+    border: 2px solid transparent;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 6px;
+    transition: all 0.2s ease-in-out;
+  }
+  
+  .timer-button:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .timer-button.selected {
+    background-color: #ff5757;
+    color: white;
+    border: 2px solid #d42e2e;
+  }
+  
+  #start-game-button {
+    /* border: solid; */
+    margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    height: 35px;
+  }
+  
+  #start-game-button > button {
+    all: unset;
+    cursor: pointer;
+    border: solid 1px green;
+    padding: 15px;
+    margin: auto;background-color: #1FAB1C;
+    border-radius: 3px;
+    color: white
+  }
+  
+  #start-game-button > button:hover {
+    background-color: darkgreen;
+  }
+  
+  .toggle-slider {
+    margin-top: 10px;
+    width: 50px;
+    height: 24px;
+    background: red;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background 0.3s ease-in-out;
+  }
+  
+  .toggle-slider.on {
+    background: #1FAB1C;
+  }
+  
+  .toggle-thumb {
+    width: 20px;
+    height: 20px;
+    background: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    left: 3px;
+    transition: transform 0.3s ease-in-out;
+  }
+  
+  .toggle-slider.on .toggle-thumb {
+    transform: translateX(26px);
+  }
+  
+  .ready-label {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    cursor: pointer;
+    user-select: none;
+  }
+  
+  .ready-checkbox {
+    display: none; /* Hide default checkbox */
+  }
+  
+  .checkmark {
+    width: 20px;
+    height: 20px;
+    border-radius: 5px;
+    border: 2px solid gray;
+    margin-left: 8px;
+    display: inline-block;
+    transition: all 0.3s ease;
+    background-color: transparent;
+  }
+  
+  .ready-checkbox:checked + .checkmark {
+    background-color: #1FAB1C; /* Green when checked */
+    border-color: #28a745;
+  }

@@ -1,39 +1,189 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // Import useNavigate
+import { useParams, useNavigate } from "react-router-dom"; 
+import Chat from "./Chat";
 
 const Lobby = ({ socket }) => {
   const { gameCode } = useParams();
   const [startButton, setStartButton] = useState(false);
-  const navigate = useNavigate(); // Hook for navigating programmatically
+  const [playerInfo, setPlayerInfo] = useState([]);
+  const [copyMessage, setCopyMessage] = useState('');
+  const [lives, setLives] = useState(2);  // Default to 2 lives
+  const [timer, setTimer] = useState(2);  // Default to 2s
+  const [autoShuffle, setAutoShuffle] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [readyStatus, setReadyStatus] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (socket) {
-      // console.log(`Connected to game: ${gameCode} with socket ID: ${socket.id}`);
       if (gameCode === socket.id) setStartButton(true);
 
       socket.on("gameStarted", ({ gameInfo }) => {
-        navigate(`/gameplay/${gameCode}/live-gameplay`, { state: { gameInfo } }); // Navigate to the Gameplay screen, passing the game data
+        navigate(`/gameplay/${gameCode}/live-gameplay`, { state: { gameInfo } });
       });
+
+      socket.on("playerInfo", (data) => {
+        console.log(data, 'from lobby');
+        setPlayerInfo(data);
+      });
+
+      socket.on("update-ready-box", ({ind, text, color}) => {
+        console.log(ind, text, color);
+        const span = document.querySelectorAll(".player-div section")[ind].querySelector(".ready")
+        span.textContent = text;
+        span.style.color = color
+      })
 
       return () => {
         socket.off("gameStarted");
       };
     }
-  }, [socket, gameCode, navigate]); // Dependencies: socket, gameCode, navigate
+  }, [socket, gameCode, navigate]);
+
+  useEffect(() => {
+    if(ready){
+    }
+  }, ready)
 
   const handleStartGame = () => {
     if (socket) {
       socket.emit("startGame", gameCode);
     }
+    console.log('starting game');
     setStartButton(false);
   };
 
+  const handleCopy = () => {
+    const textField = document.getElementById("gameCodeText");
+    textField.select();
+
+    // Copy the text to clipboard
+    document.execCommand("copy");
+
+    // Show a message for a few seconds
+    setCopyMessage('Copied to clipboard!');
+    setTimeout(() => setCopyMessage(''), 2000);
+  };
+
+  const handleLivesChange = (change) => {
+    setLives((prevLives) => Math.max(1, Math.min(4, prevLives + change))); // Ensure lives between 1 and 4
+  };
+
+  const handleReadyUp = () => {
+    setReady(!ready);
+    let readyStatus = !ready;
+    if(socket){
+      let obj = {
+        gameId: gameCode, 
+        playerId: socket.id,
+        readyStatus,
+      }
+      socket.emit('ready-or-not', obj);
+    }
+  }
+
   return (
     <div id="lobby">
-      <h1>Lobby</h1>
-      <p>Game Code: {gameCode}</p>
-      <p>Socket ID: {socket.id}</p>
-      {startButton && <button onClick={handleStartGame}>Start Game</button>}
+      <div className="player-div">
+        <div className="lobby-title"> Players {`(${playerInfo.length}/`}{playerInfo.length > 0 ? playerInfo[0].numPlayers : 4}) </div>
+        {playerInfo.map((player, i) => (
+          <section key={i}>
+            <img className="avatar" src="/assets/images/playerAvatar.png" alt="Player Avatar" />
+            <div className="displayName">{player.displayName}</div>
+            <span className="ready">NOT READY</span>
+          </section>
+        ))}
+      </div>
+
+      <div className="setting-div">
+        <div className="lobby-title">Game Settings</div>
+        <section>
+          <div>Invite Friends. Room ID:</div>
+          <div id="copyGameCode">
+            <input id="gameCodeText" type="text" value={gameCode} readOnly />
+            <button onClick={handleCopy}>Copy</button>
+          </div>
+          {copyMessage && <span id="copyMessage">{copyMessage}</span>}
+          <div id="four-sett">
+            {/* Lives Setting */}
+            <div id="lives">
+              <div>
+                <div>Lives </div>
+                <div className="info-icon" title="Choose the number of lives (default is 2).">ℹ️</div>
+              </div>
+              <div>
+                <button className="adjust-heart-buttons" onClick={() => handleLivesChange(-1)}>&lt;</button>
+                <div className="heart-container">
+                  {[...Array(lives)].map((_, i) => (
+                    <img key={i} className="heart" src="/assets/images/heart.png" alt="Heart" />
+                  ))}
+                </div>
+                <button className="adjust-heart-buttons" onClick={() => handleLivesChange(1)}>&gt;</button>
+              </div>
+              
+            </div>
+
+            {/* Timer Setting */}
+            <div id="timer">
+              <div>
+                <span>Timer: </span>
+                <span className="info-icon" title="Choose the countdown timer (default is 2 seconds).">ℹ️</span>
+              </div>
+              <div className="timer-options">
+                {[2, 3, 4].map((option) => (
+                  <button
+                    key={option}
+                    className={`timer-button ${timer === option ? "selected" : ""}`}
+                    onClick={() => setTimer(option)}
+                  >
+                    {option}s
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* AutoShuffle Toggle */}
+            <div id="autoshuffle">
+              <div>
+                <span>Auto Shuffle: </span>
+                <span className="info-icon" title="Enable or disable automatic shuffling of cards.">ℹ️</span>
+              </div>
+              <div className={`toggle-slider ${autoShuffle ? "on" : "off"}`} onClick={() => setAutoShuffle(!autoShuffle)}>
+                <div className="toggle-thumb"></div>
+              </div>
+            </div>
+
+            <div id="start-game-button">
+              {socket.id === gameCode && 
+                <button onClick={handleStartGame}>
+                  Start Game
+                </button>
+              
+              }
+            </div>
+
+
+          </div>
+        </section>
+        
+        <section id="ready-or-not">
+          <label className="ready-label">
+            I'm Ready
+            <input type="checkbox" className="ready-checkbox" onClick={handleReadyUp}/>
+            <span className="checkmark"></span>
+          </label>
+          <div>
+          </div>
+        </section>
+      </div>
+
+      <div className="chat-div">
+        <div className="chat-title">Room Chat</div>
+        {/* <section>
+          <Chat socket={socket}/>
+        </section> */}
+        <Chat socket={socket}/>
+      </div>
     </div>
   );
 };

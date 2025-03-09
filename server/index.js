@@ -4,6 +4,7 @@ const { Server } = require("socket.io");
 
 const ERSGame = require("./game");
 const getCardImg = require("./api");
+const { isBooleanObject } = require("util/types");
 require("dotenv").config();
 
 const app = express();
@@ -15,15 +16,18 @@ let games = {};
 io.on("connection", (socket) => {
     console.log("A player connected: " + socket.id);
     
-    socket.on("createGame", ({playerId}) => {
-        games[socket.id] = new ERSGame([playerId]);
+    socket.on("createGame", ({playerId, displayName, numPlayers, handColor}) => {
+        games[socket.id] = new ERSGame([{playerId, displayName, numPlayers, handColor}]);
         socket.join(socket.id); //joins the lobby
         let game = games[socket.id];
+        setTimeout(() => {
+            io.to(socket.id).emit('playerInfo', game.players);
+        }, 3500)
         
         
     });
 
-    socket.on("joinGame", ({gameId, playerId}) => {
+    socket.on("joinGame", ({gameId, playerId, displayName}) => {
         let game = games[gameId];
         if (!game) {
             console.log('not working');
@@ -31,11 +35,45 @@ io.on("connection", (socket) => {
           socket.emit("error", { message: "Game not found!" });
           return;
         }
+        let numPlayers = game.players[0].numPlayers
       
-        game.addPlayer(socket.id);  
+        game.addPlayer({gameId, playerId, displayName, numPlayers});  
         console.log(games);
         socket.join(gameId);
+        io.to(gameId).emit('playerInfo', game.players);
     });
+
+    socket.on("ready-or-not", ({gameId, playerId, readyStatus}) => {
+        let game = games[gameId];
+        let socketIds = game.players;
+        let ind;
+        let text;
+        let color;
+        socketIds.forEach((ele, i) => {
+            if(ele.playerId == playerId){
+                ind = i;
+            }
+        })
+        if(readyStatus){
+            text = 'READY';
+            color = '#1FAB1C'
+        }else{
+            text = 'NOT READY';
+            color = '#ff0000'
+        }
+        io.to(gameId).emit('update-ready-box', {ind, text, color})
+    })
+
+    socket.on("sendMessage", ({playerId, gameId, message}) => {
+        let game = games[gameId];
+        let name; 
+        game.players.forEach((ele, i) => {
+            if(ele.playerId == playerId){
+                name = ele.displayName
+            }
+        })
+        io.to(gameId).emit('receiveMessage', {name, message})
+    })
 
     socket.on("startGame", (gameId) => {
         let game = games[gameId];
