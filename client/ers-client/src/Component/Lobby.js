@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom"; 
 import Chat from "./Chat";
+//wws in the chat you feel me
 
 const Lobby = ({ socket }) => {
   const { gameCode } = useParams();
@@ -32,10 +33,17 @@ const Lobby = ({ socket }) => {
         const span = document.querySelectorAll(".player-div section")[ind].querySelector(".ready")
         span.textContent = text;
         span.style.color = color
-      })
+      });
+
+      socket.on("settings-updated", ({ lives: newLives, timer: newTimer, autoShuffle: newAutoShuffle }) => {
+        setLives(newLives);
+        setTimer(newTimer);
+        setAutoShuffle(newAutoShuffle);
+      });
 
       return () => {
         socket.off("gameStarted");
+        socket.off("settings-updated");
       };
     }
   }, [socket, gameCode, navigate]);
@@ -49,8 +57,8 @@ const Lobby = ({ socket }) => {
     if (socket) {
       socket.emit("startGame", gameCode);
     }
-    console.log('starting game');
-    setStartButton(false);
+    // console.log('starting game');
+    // setStartButton(false);
   };
 
   const handleCopy = () => {
@@ -66,7 +74,26 @@ const Lobby = ({ socket }) => {
   };
 
   const handleLivesChange = (change) => {
-    setLives((prevLives) => Math.max(1, Math.min(4, prevLives + change))); // Ensure lives between 1 and 4
+    if (socket.id === gameCode) {
+      const newLives = Math.max(1, Math.min(4, lives + change));
+      setLives(newLives);
+      socket.emit("update-settings", { gameCode, lives: newLives, timer, autoShuffle });
+    }
+  };
+
+  const handleTimerChange = (newTimer) => {
+    if (socket.id === gameCode) {
+      setTimer(newTimer);
+      socket.emit("update-settings", { gameCode, lives, timer: newTimer, autoShuffle });
+    }
+  };
+
+  const handleAutoShuffleChange = () => {
+    if (socket.id === gameCode) {
+      const newAutoShuffle = !autoShuffle;
+      setAutoShuffle(newAutoShuffle);
+      socket.emit("update-settings", { gameCode, lives, timer, autoShuffle: newAutoShuffle });
+    }
   };
 
   const handleReadyUp = () => {
@@ -112,13 +139,21 @@ const Lobby = ({ socket }) => {
                 <div className="info-icon" title="Choose the number of lives (default is 2).">ℹ️</div>
               </div>
               <div>
-                <button className="adjust-heart-buttons" onClick={() => handleLivesChange(-1)}>&lt;</button>
+                <button 
+                  className="adjust-heart-buttons" 
+                  onClick={() => handleLivesChange(-1)}
+                  disabled={socket.id !== gameCode}
+                >&lt;</button>
                 <div className="heart-container">
                   {[...Array(lives)].map((_, i) => (
                     <img key={i} className="heart" src="/assets/images/heart.png" alt="Heart" />
                   ))}
                 </div>
-                <button className="adjust-heart-buttons" onClick={() => handleLivesChange(1)}>&gt;</button>
+                <button 
+                  className="adjust-heart-buttons" 
+                  onClick={() => handleLivesChange(1)}
+                  disabled={socket.id !== gameCode}
+                >&gt;</button>
               </div>
               
             </div>
@@ -134,7 +169,8 @@ const Lobby = ({ socket }) => {
                   <button
                     key={option}
                     className={`timer-button ${timer === option ? "selected" : ""}`}
-                    onClick={() => setTimer(option)}
+                    onClick={() => handleTimerChange(option)}
+                    disabled={socket.id !== gameCode}
                   >
                     {option}s
                   </button>
@@ -148,7 +184,11 @@ const Lobby = ({ socket }) => {
                 <span>Auto Shuffle: </span>
                 <span className="info-icon" title="Enable or disable automatic shuffling of cards.">ℹ️</span>
               </div>
-              <div className={`toggle-slider ${autoShuffle ? "on" : "off"}`} onClick={() => setAutoShuffle(!autoShuffle)}>
+              <div 
+                className={`toggle-slider ${autoShuffle ? "on" : "off"}`} 
+                onClick={handleAutoShuffleChange}
+                style={{ cursor: socket.id === gameCode ? 'pointer' : 'not-allowed' }}
+              >
                 <div className="toggle-thumb"></div>
               </div>
             </div>

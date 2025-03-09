@@ -21,8 +21,8 @@ const PhaserGame = ({ players, socket }) => {
     useEffect(() => {
         const config = {
             type: Phaser.AUTO,
-            width: 1200,
-            height: 900,
+            width: 760,
+            height: 400,
             parent: 'phaser-container', // This must match the div ID
             scene: {
                 preload,

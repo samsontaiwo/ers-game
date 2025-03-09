@@ -4,7 +4,7 @@ const { Server } = require("socket.io");
 
 const ERSGame = require("./game");
 const getCardImg = require("./api");
-const { isBooleanObject } = require("util/types");
+// const { isBooleanObject } = require("util/types");
 require("dotenv").config();
 
 const app = express();
@@ -43,7 +43,7 @@ io.on("connection", (socket) => {
         io.to(gameId).emit('playerInfo', game.players);
     });
 
-    socket.on("ready-or-not", ({gameId, playerId, readyStatus}) => {
+    socket.on("ready-or-not", ({gameId, playerId, readyStatus}) => { 
         let game = games[gameId];
         let socketIds = game.players;
         let ind;
@@ -108,7 +108,22 @@ io.on("connection", (socket) => {
         io.to(gameId).emit("slapResult", { gameId, playerId, result });
     });
 
-    
+    socket.on("update-settings", ({gameCode, lives, timer, autoShuffle}) => {
+        let game = games[gameCode];
+        if (!game) return;
+
+        // Update the game settings
+        const settings = {
+            lives,
+            timer,
+            autoShuffle
+        };
+        
+        game.settings = settings;
+
+        io.to(gameCode).emit('settings-updated', settings);
+    });
+
     socket.on("disconnect", () => {
         console.log("Player disconnected: " + socket.id);
     });
