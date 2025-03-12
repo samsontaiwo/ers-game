@@ -22,6 +22,7 @@ const dealCards = (players) => {
   players.forEach((player, i) => {
     hands[player.playerId] = deck.filter((_, index) => index % playerCount === i);
   });
+  // console.log(hands);
 
   return hands;
 }
@@ -36,6 +37,7 @@ class ERSGame {
     this.currentTurn = 0;
     this.forcedTurn = 0;
     this.faceCardChallenge = null;
+    this.timer = 3000;
   }
 
   getCurrentPlayer() {
@@ -48,6 +50,7 @@ class ERSGame {
 
   assignCards() {
     this.hands = dealCards(this.players);
+    return this.hands;
   }
 
   playCard(playerId) {
@@ -63,14 +66,14 @@ class ERSGame {
       this.faceCardChallenge = null;
       this.forcedTurn = 0;
       this.nextTurn();
-      return { success: true, card };
+      return { success: true, card, cardCount: this.hands[playerId].length };
     }
 
     if (["J", "Q", "K", "A"].includes(card.rank)) {
       this.faceCardChallenge = { rank: card.rank, challenger: playerId };
       this.forcedTurn = punishment[card.rank];
       this.nextTurn();
-      return { success: true, card };
+      return { success: true, card, cardCount: this.hands[playerId].length };
     }
 
     if (this.forcedTurn > 0) {
@@ -89,11 +92,11 @@ class ERSGame {
         this.currentTurn = this.players.findIndex(player => player.playerId === winner);
       }
 
-      return { success: true, card };
+      return { success: true, card, cardCount: this.hands[playerId].length };
     }
 
     this.nextTurn();
-    return { success: true, card };
+    return { success: true, card, cardCount: this.hands[playerId].length };
   }
 
   nextTurn() {

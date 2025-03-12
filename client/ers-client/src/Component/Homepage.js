@@ -68,7 +68,7 @@ const Homepage = ({ socket }) => {
 
             setTimeout(() => {
                 navigate(`/lobby/${createdGameCode}`);
-            }, 3000);
+            }, 1000);
         }
     };
 

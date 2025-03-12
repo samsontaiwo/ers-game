@@ -79,22 +79,29 @@ io.on("connection", (socket) => {
         let game = games[gameId];
         if(!game) return;
 
-        game.assignCards();
+        let hands = game.assignCards();
 
-        console.log(game);
+        const playerCardCounts = Object.entries(hands).map(([playerId, cards]) => ({
+            playerId,
+            cardCount: cards.length,
+          }));
 
-        io.to(gameId).emit('gameStarted', {gameInfo: game})
+        console.log(playerCardCounts);
+        // socket.emit('startTimer', {timer: game.timer})
+
+        // console.log(game);
+
+        io.to(gameId).emit('gameStarted', {gameInfo: game, playerCardCounts})
     })
 
     socket.on("playCard", ({gameId, playerId}) => {
         let game = games[gameId];
-        let targetTime = Date.now() + 2000;
         if (!game) return;
     
         let result = game.playCard(playerId);
+        console.log(result);
         let cardImg = getCardImg(result);
-        console.log(result, cardImg);
-        io.to(gameId).emit("cardPlayed", { gameId, playerId, result, cardImg, targetTime });
+        io.to(gameId).emit("cardPlayed", { gameId, playerId, result, cardImg,  });
     
         let winCheck = game.checkWin();
         if (winCheck) io.emit("gameWon", winCheck);

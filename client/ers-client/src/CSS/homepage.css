@@ -7,7 +7,7 @@
     background-image: url('/public/assets/images/Leonardo_Phoenix_10_Retain_the_overall_aesthetic_and_design_of_2.jpg');
     background-size: cover;
     background-position: center;
-    animation: floatEffect 3s ease-in-out infinite;
+    /* animation: floatEffect 3s ease-in-out infinite; */
     box-shadow: 0px 15px 30px rgba(0, 0, 0, 0.4);
     transform: translateY(-10px);
     transition: transform 0.3s ease, box-shadow 0.3s ease;

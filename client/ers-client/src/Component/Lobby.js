@@ -18,17 +18,15 @@ const Lobby = ({ socket }) => {
     if (socket) {
       if (gameCode === socket.id) setStartButton(true);
 
-      socket.on("gameStarted", ({ gameInfo }) => {
-        navigate(`/gameplay/${gameCode}/live-gameplay`, { state: { gameInfo } });
+      socket.on("gameStarted", ({ gameInfo, playerCardCounts }) => {
+        navigate(`/gameplay/${gameCode}/live-gameplay`, { state: { gameInfo, playerCardCounts } });
       });
 
       socket.on("playerInfo", (data) => {
-        console.log(data, 'from lobby');
         setPlayerInfo(data);
       });
 
       socket.on("update-ready-box", ({ind, text, color}) => {
-        console.log(ind, text, color);
         const span = document.querySelectorAll(".player-div section")[ind].querySelector(".ready")
         span.textContent = text;
         span.style.color = color
