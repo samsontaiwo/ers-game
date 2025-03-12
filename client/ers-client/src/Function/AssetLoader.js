@@ -6,15 +6,6 @@ export default class AssetLoader {
 
     preload() {
 
-        this.scene.load.image('LH', '/assets/images/lefthand.png')
-        this.scene.load.image('RH', '/assets/images/righthand.png')
-
-        // Load background image
-        this.scene.load.image('backgroundImage', '/assets/images/scene.png');
-
-        // Load the back of the card
-        this.scene.load.image('backOfCard', '/assets/images/backofcard.jpg');
-        
         // Load all the card images (52 cards + 2 jokers)
         this.scene.load.image('AS', 'https://deckofcardsapi.com/static/img/AS.png');
         this.scene.load.image('2S', 'https://deckofcardsapi.com/static/img/2S.png');

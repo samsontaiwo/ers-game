@@ -12,7 +12,7 @@ const App = () => {
 
     useEffect(() => {
         // Initialize the socket only once
-        const newSocket = io('http://localhost:3000/'); // Replace with server URL //https://ers-game.onrender.com http://localhost:3000/
+        const newSocket = io('https://ers-game.onrender.com'); // Replace with server URL //https://ers-game.onrender.com
         setSocket(newSocket);
 
         // Cleanup on unmount
