@@ -86,10 +86,8 @@ io.on("connection", (socket) => {
             cardCount: cards.length,
           }));
 
-        console.log(playerCardCounts);
-        // socket.emit('startTimer', {timer: game.timer})
+        // console.log(playerCardCounts);
 
-        // console.log(game);
 
         io.to(gameId).emit('gameStarted', {gameInfo: game, playerCardCounts})
     })

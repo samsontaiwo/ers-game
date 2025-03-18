@@ -43,6 +43,15 @@ export function createPlayerNameTag(scene, pos) {
     return { ribbon, playerName };
 }
 
+export function createPlayerLives(scene, pos) {
+    //Create Life
+    const lives = scene.add.image(pos.x, pos.y + 55, 'heart')
+    lives.setDisplaySize(50, 50);
+    lives.setDepth(10);
+
+    return { lives };
+}
+
 export function createCentralPile(scene) {
     const centerX = scene.cameras.main.centerX;
     const centerY = scene.cameras.main.centerY;
@@ -201,10 +210,6 @@ export function createDealingAnimation(scene, positions, centerX, centerY, socke
 
     function createPermanentCard(pos) {
         const permanentCard = scene.add.image(pos.cardX, pos.cardY, 'card');
-        // Add a centered semi-transparent circle overlaying the card
-        // const circle = scene.add.circle(pos.cardX, pos.cardY, 26, 0x202020); //0x000000, 0 this is for transparency
-        // circle.setAlpha(0.7);
-        // circle.setDepth(10000); // Ensure circle appears above the card
         permanentCard.setDisplaySize(70, 100);
         return permanentCard;
         
@@ -219,7 +224,11 @@ export function createDealingAnimation(scene, positions, centerX, centerY, socke
         let hoverSlap = null;
         
         slapButton.on('pointerdown', () => {
-            console.log('slapped');
+            socket.emit('slap', {
+                gameId: localStorage.getItem('gameId'),
+                playerId: socket.id,        
+            });
+            
         });
 
         slapButton.on('pointerover', () => {
@@ -248,35 +257,6 @@ export function createDealingAnimation(scene, positions, centerX, centerY, socke
 
     function setupPermanentCardInteractions(permanentCard) {
         permanentCard.setInteractive();
-        // let hoverCard = null;
-
-        // function createHoverCard() {
-        //     hoverCard = scene.add.image(permanentCard.x, permanentCard.y, 'card');
-        //     hoverCard.setDisplaySize(70, 100);
-        //     hoverCard.setDepth(permanentCard.depth + 1000);
-
-        //     scene.tweens.add({
-        //         targets: hoverCard,
-        //         scaleX: 0.5,
-        //         scaleY: 0.5,
-        //         y: permanentCard.y - 25,
-        //         duration: 150,
-        //         ease: 'Power1'
-        //     });
-        // }
-
-        // permanentCard.on('pointerover', () => {
-        //     if (!hoverCard) {
-        //         createHoverCard();
-        //     }
-        // });
-
-        // permanentCard.on('pointerout', () => {
-        //     if (hoverCard) {
-        //         hoverCard.destroy();
-        //         hoverCard = null;
-        //     }
-        // });
 
         permanentCard.on('pointerdown', () => {
             socket.emit('playCard', {
@@ -333,14 +313,107 @@ export function updateCardCountDisplay(scene, pos, playerCardCounts, cardCount, 
             child.x === x &&
             child.y === y
         );
-        console.log(existingCircle, 'existingCircle')
-        console.log(existingText.text, 'existingText')
+
     
         if (existingCircle && existingText) {
-            console.log('hello from the other side');
             // Update existing text
             existingText.setText(cardCount.toString());
             return { cardCountCircle: existingCircle, cardCountText: existingText };
         }
+    }
+}
+
+export function createSlapAnimation(scene, playerId, positions) {
+    const playerPosition = positions.find(pos => pos.player.playerId === playerId);
+    if (!playerPosition) return;
+    console.log('hmmmmm')
+
+    // Calculate center of the pile
+    const centerX = 490; 
+    const centerY = 350;
+    
+    // Create hand at player position
+    const handSlap = scene.add.image(playerPosition.x, playerPosition.y, 'hand');
+    handSlap.setDisplaySize(200, 200);
+    handSlap.setDepth(1000);
+    
+    // Animate hand from player to center pile
+    scene.tweens.add({
+        targets: handSlap,
+        x: centerX,
+        y: centerY,
+        duration: 200,
+        ease: 'Power2',
+        onComplete: () => {
+            // Add impact effect at center
+            const slapImpact = scene.add.image(centerX, centerY, 'hand');
+            slapImpact.setDisplaySize(200, 200);
+            slapImpact.setAlpha(0.8);
+            slapImpact.setDepth(999);
+
+            scene.time.delayedCall(500, () => {
+                scene.tweens.add({
+                    targets: [handSlap, slapImpact],
+                    alpha: 0,
+                    scaleX: 1.2,
+                    scaleY: 1.2,
+                    duration: 200,
+                    ease: 'Power2',
+                    onComplete: () => {
+                        handSlap.destroy();
+                        slapImpact.destroy();
+                    }
+                });
+            });
+        }
+    });
+}
+
+export function collectCardsAnimation(scene, playerId, positions) {
+    const centerX = 480;
+    const centerY = 350;
+    
+    // Find all cards in the pile
+    const pileCards = scene.children.list.filter(child => 
+        child.type === 'Image' && 
+        child.x === centerX &&
+        child.y === centerY &&
+        child.texture.key !== 'card' // Not a card back
+    );
+
+    console.log(pileCards, 'pileCards');
+
+    if (pileCards.length > 0) {
+        // Get target position (the player's card pile position)
+        const playerPosition = positions.find(pos => pos.player.playerId === playerId);
+        
+        // Animate all cards flip and movement
+        pileCards.forEach((card, index) => {
+            scene.tweens.add({
+                targets: card,
+                scaleX: 0,
+                duration: 150,
+                onComplete: () => {
+                    // Change texture to card back when fully scaled to 0
+                    card.setTexture('card');
+                    
+                    // Animate scale back and move to player position
+                    scene.tweens.add({
+                        targets: card,
+                        scaleX: 1,
+                        scaleY: 1,
+                        displayWidth: 70,
+                        displayHeight: 100,
+                        x: playerPosition.cardX,
+                        y: playerPosition.cardY,
+                        duration: 300,
+                        ease: 'Power1',
+                        onComplete: () => {
+                            card.destroy();
+                        }
+                    });
+                }
+            });
+        });
     }
 }

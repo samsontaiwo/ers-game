@@ -6,6 +6,14 @@ export default class AssetLoader {
 
     preload() {
 
+
+        // this.load.image('avatar', '/assets/images/secondavatargame.png');
+        // this.load.image('ribbon', '/assets/images/ribbon.png');
+        // this.load.image('card', '/assets/images/cardback.png');
+        // this.load.image('slap', '/assets/images/slap.png');
+        this.scene.load.image('heart', '/assets/images/heart.png');
+        this.scene.load.image('hand', '/assets/images/hand.png');
+
         // Load all the card images (52 cards + 2 jokers)
         this.scene.load.image('AS', 'https://deckofcardsapi.com/static/img/AS.png');
         this.scene.load.image('2S', 'https://deckofcardsapi.com/static/img/2S.png');

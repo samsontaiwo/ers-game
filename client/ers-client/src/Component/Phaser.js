@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Phaser from 'phaser';
 import { getPlayerPositions } from '../Function/PlayerPositions';
-import { createPlayerAvatar, createPlayerNameTag, createCentralPile, createDealingAnimation, createPlayedCardAnimation, createCardCountDisplay, updateCardCountDisplay } from '../Function/GameSetup';
+import { createPlayerAvatar, createPlayerNameTag, createCentralPile, createDealingAnimation, createPlayedCardAnimation, createCardCountDisplay, updateCardCountDisplay, createPlayerLives, createSlapAnimation, collectCardsAnimation } from '../Function/GameSetup';
 import AssetLoader from '../Function/AssetLoader';
 
 const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
@@ -29,7 +29,6 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
         const game = new Phaser.Game(config);
 
         socket.on('cardPlayed', ({gameId, playerId, result, cardImg}) => {
-            // console.log(result.cardCount);
             const currentScene = game.scene.scenes[0];
             createPlayedCardAnimation(currentScene, cardImg, playerId, globalPositions.current, result.success);
             
@@ -41,6 +40,20 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
                 updateCardCountDisplay(currentScene, pos, playerCardCounts, result.cardCount, playerId);
             })
         })
+
+        socket.on('slapResult', ({ gameId, playerId, result }) => {
+            const currentScene = game.scene.scenes[0];
+            if (currentScene) {
+                createSlapAnimation(currentScene, playerId, globalPositions.current);
+            }
+            if (result.success === true) {
+                setTimeout(() => {
+                    collectCardsAnimation(currentScene, playerId, globalPositions.current);
+                }, 700);
+            }else{
+                console.log('slap failed');
+            }
+        });
 
         return () => {
             game.destroy(true);
@@ -99,6 +112,7 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
         positions.forEach((pos, i) => {
             createPlayerAvatar(this, pos);
             createPlayerNameTag(this, pos);
+            createPlayerLives(this, pos);
             createCardCountDisplay(this, pos, playerCardCounts);
         });
 
