@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Phaser from 'phaser';
 import { getPlayerPositions } from '../Function/PlayerPositions';
-import { createPlayerAvatar, createPlayerNameTag, createCentralPile, createDealingAnimation, createPlayedCardAnimation, createCardCountDisplay, updateCardCountDisplay, createPlayerLives, createSlapAnimation, collectCardsAnimation } from '../Function/GameSetup';
+import { createPlayerAvatar, createPlayerNameTag, createCentralPile, createDealingAnimation, createPlayedCardAnimation, createCardCountDisplay, updateCardCountDisplay, createPlayerLives, createSlapAnimation, collectCardsAnimation, createTurnTimer } from '../Function/GameSetup';
 import AssetLoader from '../Function/AssetLoader';
 
 const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
@@ -36,6 +36,11 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
                 return;
             }
 
+            // if(result.challengeWinner){
+            //     console.log(result.challengeWinner, 'winner');
+                
+            // }
+
             globalPositions.current.forEach((pos, i) => {
                 updateCardCountDisplay(currentScene, pos, playerCardCounts, result.cardCount, playerId);
             })
@@ -49,15 +54,31 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
             if (result.success === true) {
                 setTimeout(() => {
                     collectCardsAnimation(currentScene, playerId, globalPositions.current);
+                    globalPositions.current.forEach((pos) => {
+                        updateCardCountDisplay(currentScene, pos, playerCardCounts, result.count, playerId);
+                    });
                 }, 700);
             }else{
                 console.log('slap failed');
             }
         });
 
+        socket.on('challengeWon', ({playerId, cardCount}) => {
+            const currentScene = game.scene.scenes[0];
+            if (currentScene) {
+                collectCardsAnimation(currentScene, playerId, globalPositions.current);
+            }
+        });
+
+        // socket.on('turnStarted', ({playerId, duration}) => {
+        //     const currentScene = game.scene.scenes[0];
+        //     if (currentScene) {
+        //         createTurnTimer(currentScene, playerId, globalPositions.current);
+        //     }
+        // });
+
         return () => {
             game.destroy(true);
-
         }
     }, []);
 
@@ -112,7 +133,7 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
         positions.forEach((pos, i) => {
             createPlayerAvatar(this, pos);
             createPlayerNameTag(this, pos);
-            createPlayerLives(this, pos);
+            // createPlayerLives(this, pos);
             createCardCountDisplay(this, pos, playerCardCounts);
         });
 

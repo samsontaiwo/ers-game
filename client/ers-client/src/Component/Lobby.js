@@ -24,7 +24,18 @@ const Lobby = ({ socket }) => {
       });
 
       socket.on("playerInfo", (data) => {
-        setPlayerInfo(data);
+        if (data && data.length > 0) {
+          setPlayerInfo(data);
+        } else {
+          // If we get empty data, retry once after a short delay
+          setTimeout(() => {
+            socket.emit("joinGame", {
+              gameId: gameCode,
+              playerId: socket.id,
+              displayName: localStorage.getItem("displayName") // Make sure to store this when user enters name
+            });
+          }, 200);
+        }
       });
 
       socket.on("update-ready-box", ({ind, text, color}) => {
@@ -41,6 +52,7 @@ const Lobby = ({ socket }) => {
 
       return () => {
         socket.off("gameStarted");
+        socket.off("playerInfo");
         socket.off("settings-updated");
       };
     }

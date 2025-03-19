@@ -37,7 +37,11 @@ class ERSGame {
     this.currentTurn = 0;
     this.forcedTurn = 0;
     this.faceCardChallenge = null;
-    this.timer = 3000;
+    this.timer = 3000; // 3 seconds in milliseconds
+    this.turnStartTime = null;
+    // this.challengeWinner = null;
+    this.isWaitingForSlap = false;
+    this.isLocked = false;
   }
 
   getCurrentPlayer() {
@@ -53,13 +57,42 @@ class ERSGame {
     return this.hands;
   }
 
+  startTurn() {
+    this.turnStartTime = Date.now();
+    return {
+      playerId: this.getCurrentPlayer().playerId,
+      duration: this.timer
+    };
+  }
+
+  checkTurnTimeout() {
+    if (!this.turnStartTime) return false;
+    
+    const elapsed = Date.now() - this.turnStartTime;
+    if (elapsed >= this.timer) {
+      // Auto play card if time is up
+      const currentPlayer = this.getCurrentPlayer();
+      if (this.hands[currentPlayer.playerId].length > 0) {
+        return this.playCard(currentPlayer.playerId);
+      }
+    }
+    return false;
+  }
+
   playCard(playerId) {
+    if (this.isLocked) {
+      return { success: false, message: "Game is locked" };
+    }
+
+    // Reset turn timer
+    this.turnStartTime = null;
+
     if (playerId !== this.getCurrentPlayer().playerId) {
       return { success: false };
     }
 
-    let card = this.hands[playerId].shift(); // Remove top card
-    this.pile.push(card); // Add to pile
+    let card = this.hands[playerId].shift();
+    this.pile.push(card);
 
     // Reset challenge if 10 is played
     if (card.rank === "10") {
@@ -85,13 +118,23 @@ class ERSGame {
 
       if (this.forcedTurn === 0 && this.faceCardChallenge) {
         let winner = this.faceCardChallenge.challenger;
-        this.hands[winner] = [...this.hands[winner], ...this.pile];
-        this.pile = [];
-        this.faceCardChallenge = null; // Reset challenge
+        this.isWaitingForSlap = true;
+        this.isLocked = true;
+        
+        setTimeout(() => {
+          this.isLocked = false;
+        }, 2000);
 
-        this.currentTurn = this.players.findIndex(player => player.playerId === winner);
+        return { 
+          success: true, 
+          card, 
+          cardCount: this.hands[playerId].length,
+          challengeComplete: true,
+          challengeWinner: winner,
+          challengeWinnerCardCount: this.hands[winner].length
+        };
       }
-
+      console.log('counting......');
       return { success: true, card, cardCount: this.hands[playerId].length };
     }
 
@@ -105,11 +148,22 @@ class ERSGame {
 
   slap(playerId) {
     if (isValidSlap(this.pile)) {
+      this.isLocked = true;
+      
+      setTimeout(() => {
+        this.isLocked = false;
+      }, 2000);
+
       console.log('yep you can slap this');
+      this.isWaitingForSlap = false;
+      this.faceCardChallenge = null;
+      this.forcedTurn = 0;
+      
       this.hands[playerId] = [...this.hands[playerId], ...this.pile];
       this.pile = [];
       this.currentTurn = this.players.findIndex(player => player.playerId === playerId);
-      return { success: true, message: `${playerId} won the pile!` };
+      
+      return { success: true, message: `${playerId} won the pile!`, count: this.hands[playerId].length };
     }
     console.log('what are u doing NOOOO');
     return { success: false, message: "Invalid slap!" };
@@ -122,15 +176,21 @@ class ERSGame {
 }
 
 const isValidSlap = (pile) => {
-  if (pile.length < 2) {
+  if (pile.length === 0) {
     return false;
   }
 
   let top = pile[pile.length - 1];
-  let second = pile[pile.length - 2];
+  let second = null;
+
+  if(pile.length > 1){
+    second = pile[pile.length - 2];
+  }
 
   // Double
-  if (top.rank === second.rank) return true;
+  if(top && second){
+    if (top.rank === second.rank) return true;
+  }
 
   // Sandwich
   if (pile.length > 2) {

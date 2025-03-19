@@ -20,27 +20,24 @@ io.on("connection", (socket) => {
         games[socket.id] = new ERSGame([{playerId, displayName, numPlayers, handColor}]);
         socket.join(socket.id); //joins the lobby
         let game = games[socket.id];
-        setTimeout(() => {
-            io.to(socket.id).emit('playerInfo', game.players);
-        }, 3500)
-        
-        
+        io.to(socket.id).emit('playerInfo', game.players);
     });
 
     socket.on("joinGame", ({gameId, playerId, displayName}) => {
         let game = games[gameId];
         if (!game) {
             console.log('not working');
-          // If the game doesn't exist, send an error message
-          socket.emit("error", { message: "Game not found!" });
-          return;
+            socket.emit("error", { message: "Game not found!" });
+            return;
         }
-        let numPlayers = game.players[0].numPlayers
+        let numPlayers = game.players[0].numPlayers;
       
         game.addPlayer({gameId, playerId, displayName, numPlayers});  
         console.log(games);
         socket.join(gameId);
-        io.to(gameId).emit('playerInfo', game.players);
+        setTimeout(() => {
+            io.to(gameId).emit('playerInfo', game.players);
+        }, 100);
     });
 
     socket.on("ready-or-not", ({gameId, playerId, readyStatus}) => { 
@@ -97,12 +94,37 @@ io.on("connection", (socket) => {
         if (!game) return;
     
         let result = game.playCard(playerId);
+        
+        if (!result.success && result.message === "Game is locked") {
+            return;
+        }
+
         console.log(result);
         let cardImg = getCardImg(result);
-        io.to(gameId).emit("cardPlayed", { gameId, playerId, result, cardImg,  });
+
+        io.to(gameId).emit("cardPlayed", { gameId, playerId, result, cardImg });
+
+        // Handle challenge completion
+        if (result.challengeComplete) {
+            setTimeout(() => {
+                if (game.isWaitingForSlap) {
+                    // If no one slapped, give cards to winner
+                    game.hands[result.challengeWinner] = [...game.hands[result.challengeWinner], ...game.pile];
+                    io.to(gameId).emit('challengeWon', { 
+                        playerId: result.challengeWinner,
+                        cardCount: game.hands[result.challengeWinner].length 
+                    });
+                    game.pile = [];
+                    game.faceCardChallenge = null;
+                    game.forcedTurn = 0;
+                    game.currentTurn = game.players.findIndex(player => player.playerId === result.challengeWinner);
+                    game.isWaitingForSlap = false;
+                }
+            }, 2000);
+        }
     
         let winCheck = game.checkWin();
-        if (winCheck) io.emit("gameWon", winCheck);
+        if (winCheck) io.to(gameId).emit("gameWon", winCheck);
     });
 
     socket.on("slap", ({gameId, playerId}) => {

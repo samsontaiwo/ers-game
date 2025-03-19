@@ -326,7 +326,6 @@ export function updateCardCountDisplay(scene, pos, playerCardCounts, cardCount, 
 export function createSlapAnimation(scene, playerId, positions) {
     const playerPosition = positions.find(pos => pos.player.playerId === playerId);
     if (!playerPosition) return;
-    console.log('hmmmmm')
 
     // Calculate center of the pile
     const centerX = 490; 
@@ -381,7 +380,6 @@ export function collectCardsAnimation(scene, playerId, positions) {
         child.texture.key !== 'card' // Not a card back
     );
 
-    console.log(pileCards, 'pileCards');
 
     if (pileCards.length > 0) {
         // Get target position (the player's card pile position)
@@ -416,4 +414,33 @@ export function collectCardsAnimation(scene, playerId, positions) {
             });
         });
     }
+}
+
+export function createTurnTimer(scene, playerId, positions) {
+    const playerPosition = positions.find(pos => pos.player.playerId === playerId);
+    if (!playerPosition) return;
+
+    // Create a circle around the player's card pile
+    const timerCircle = scene.add.circle(
+        playerPosition.cardX,
+        playerPosition.cardY,
+        45,  // radius
+        0xffffff,  // color (white)
+        0.5   // alpha
+    );
+    timerCircle.setDepth(999);
+
+    // Add pulsing animation
+    scene.tweens.add({
+        targets: timerCircle,
+        alpha: { from: 0.5, to: 0 },
+        duration: 1000,
+        repeat: 2,  // 3 seconds total
+        ease: 'Sine.easeInOut',
+        onComplete: () => {
+            timerCircle.destroy();
+        }
+    });
+
+    return timerCircle;
 }
