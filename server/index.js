@@ -18,9 +18,13 @@ io.on("connection", (socket) => {
     
     socket.on("createGame", ({playerId, displayName, numPlayers, handColor}) => {
         games[socket.id] = new ERSGame([{playerId, displayName, numPlayers, handColor}]);
-        socket.join(socket.id); //joins the lobby
+        socket.join(socket.id); // joins the lobby
         let game = games[socket.id];
-        io.to(socket.id).emit('playerInfo', game.players);
+
+        // Emit playerInfo immediately for the creator
+        setTimeout(() => {
+            io.to(socket.id).emit('playerInfo', game.players);
+        }, 1500);
     });
 
     socket.on("joinGame", ({gameId, playerId, displayName}) => {
@@ -35,9 +39,9 @@ io.on("connection", (socket) => {
         game.addPlayer({gameId, playerId, displayName, numPlayers});  
         console.log(games);
         socket.join(gameId);
-        setTimeout(() => {
-            io.to(gameId).emit('playerInfo', game.players);
-        }, 100);
+
+        // Emit to all players in the lobby, including the new joiner
+        io.to(gameId).emit('playerInfo', game.players);
     });
 
     socket.on("ready-or-not", ({gameId, playerId, readyStatus}) => { 
@@ -96,7 +100,8 @@ io.on("connection", (socket) => {
         let result = game.playCard(playerId);
         
         if (!result.success && result.message === "Game is locked") {
-            return;
+               // If game is locked, just return without emitting cardPlayed
+     return;
         }
 
         console.log(result);
@@ -120,7 +125,7 @@ io.on("connection", (socket) => {
                     game.currentTurn = game.players.findIndex(player => player.playerId === result.challengeWinner);
                     game.isWaitingForSlap = false;
                 }
-            }, 2000);
+            }, 1500);
         }
     
         let winCheck = game.checkWin();

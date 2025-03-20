@@ -444,3 +444,51 @@ export function createTurnTimer(scene, playerId, positions) {
 
     return timerCircle;
 }
+
+export function createBurnCardAnimation(scene, playerId, positions) {
+    const playerPosition = positions.find(pos => pos.player.playerId === playerId);
+    if (!playerPosition) return;
+
+    // Create card back at player's position
+    const burnCard = scene.add.image(playerPosition.cardX, playerPosition.cardY, 'card');
+    burnCard.setDisplaySize(70, 100); // Start with same size as player's pile
+    burnCard.setDepth(1000); // Start behind the pile
+
+    // Calculate center position
+    const centerX = 480;
+    const centerY = 350;
+
+    // First tween: Lift card slightly up and forward
+    scene.tweens.add({
+        targets: burnCard,
+        // y: playerPosition.cardY - 20, // Lift up slightly
+        depth: 999, // Bring forward temporarily
+        duration: 3000,
+        ease: 'Power1',
+        onComplete: () => {
+            // Second tween: Move to center while adjusting size
+            scene.tweens.add({
+                targets: burnCard,
+                x: centerX,
+                y: centerY,
+                displayWidth: 160, // Match center pile size
+                displayHeight: 220,
+                depth: 0.1, // Move behind pile again
+                duration: 400,
+                ease: 'Power1',
+                onComplete: () => {
+                    // Fade out
+                    scene.tweens.add({
+                        targets: burnCard,
+                        alpha: 0,
+                        duration: 200,
+                        ease: 'Power2',
+                        onComplete: () => {
+                            burnCard.destroy();
+                        }
+                    });
+                }
+            });
+        }
+    });
+}

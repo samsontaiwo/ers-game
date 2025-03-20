@@ -7,10 +7,10 @@ export default class AssetLoader {
     preload() {
 
 
-        // this.load.image('avatar', '/assets/images/secondavatargame.png');
-        // this.load.image('ribbon', '/assets/images/ribbon.png');
-        // this.load.image('card', '/assets/images/cardback.png');
-        // this.load.image('slap', '/assets/images/slap.png');
+        this.scene.load.image('avatar', '/assets/images/secondavatargame.png');
+        this.scene.load.image('ribbon', '/assets/images/ribbon.png');
+        this.scene.load.image('card', '/assets/images/cardback.png');
+        this.scene.load.image('slap', '/assets/images/slap.png');
         this.scene.load.image('heart', '/assets/images/heart.png');
         this.scene.load.image('hand', '/assets/images/hand.png');
 

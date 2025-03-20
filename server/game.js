@@ -164,9 +164,15 @@ class ERSGame {
       this.currentTurn = this.players.findIndex(player => player.playerId === playerId);
       
       return { success: true, message: `${playerId} won the pile!`, count: this.hands[playerId].length };
+    }else{
+      if (this.hands[playerId].length > 0) {
+        const burnCard = this.hands[playerId].shift(); // Remove top card
+        this.pile.unshift(burnCard); // Add to bottom of pile
+        return { success: false, message: "Invalid slap - card burned", count: this.hands[playerId].length };
+      }
+      return { success: false, message: "Invalid slap - no cards to burn" };
     }
-    console.log('what are u doing NOOOO');
-    return { success: false, message: "Invalid slap!" };
+    
   }
 
   checkWin() {

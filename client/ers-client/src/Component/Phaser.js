@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Phaser from 'phaser';
 import { getPlayerPositions } from '../Function/PlayerPositions';
-import { createPlayerAvatar, createPlayerNameTag, createCentralPile, createDealingAnimation, createPlayedCardAnimation, createCardCountDisplay, updateCardCountDisplay, createPlayerLives, createSlapAnimation, collectCardsAnimation, createTurnTimer } from '../Function/GameSetup';
+import { createPlayerAvatar, createPlayerNameTag, createCentralPile, createDealingAnimation, createPlayedCardAnimation, createCardCountDisplay, updateCardCountDisplay, createPlayerLives, createSlapAnimation, collectCardsAnimation, createTurnTimer, createBurnCardAnimation } from '../Function/GameSetup';
 import AssetLoader from '../Function/AssetLoader';
 
 const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
@@ -36,11 +36,6 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
                 return;
             }
 
-            // if(result.challengeWinner){
-            //     console.log(result.challengeWinner, 'winner');
-                
-            // }
-
             globalPositions.current.forEach((pos, i) => {
                 updateCardCountDisplay(currentScene, pos, playerCardCounts, result.cardCount, playerId);
             })
@@ -59,7 +54,12 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
                     });
                 }, 700);
             }else{
-                console.log('slap failed');
+                if(result.message === "Invalid slap - card burned" && result.success === false){
+                    // createBurnCardAnimation(currentScene, playerId, globalPositions.current);
+                }
+                globalPositions.current.forEach((pos) => {
+                    updateCardCountDisplay(currentScene, pos, playerCardCounts, result.count, playerId);
+                });
             }
         });
 
@@ -67,6 +67,9 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
             const currentScene = game.scene.scenes[0];
             if (currentScene) {
                 collectCardsAnimation(currentScene, playerId, globalPositions.current);
+                globalPositions.current.forEach((pos) => {
+                    updateCardCountDisplay(currentScene, pos, playerCardCounts, cardCount, playerId);
+                });
             }
         });
 
@@ -89,21 +92,9 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
         const main = document.getElementById('main');
         main.style.height = '700px';
     }
-   
-        
-
-
-    
-
-  
 
     function preload() {
-
-        this.load.image('avatar', '/assets/images/secondavatargame.png');
-        this.load.image('ribbon', '/assets/images/ribbon.png');
-        this.load.image('card', '/assets/images/cardback.png');
-        this.load.image('slap', '/assets/images/slap.png');
-
+        
         const assetLoader = new AssetLoader(this);
         assetLoader.preload();
 
@@ -141,8 +132,6 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
         const dealCards = () => {
             positions.forEach((pos, index) => {
                 createDealingCard(pos, index);
-                
-                
             });
         };
 
