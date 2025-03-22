@@ -1,8 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Phaser from 'phaser';
 import { getPlayerPositions } from '../Function/PlayerPositions';
-import { createPlayerAvatar, createPlayerNameTag, createCentralPile, createDealingAnimation, createPlayedCardAnimation, createCardCountDisplay, updateCardCountDisplay, createPlayerLives, createSlapAnimation, collectCardsAnimation, createTurnTimer, createBurnCardAnimation } from '../Function/GameSetup';
+import { createPlayerAvatar, createPlayerNameTag, createCentralPile, createDealingAnimation, createPlayedCardAnimation,
+         createCardCountDisplay, updateCardCountDisplay, createPlayerLives, createSlapAnimation, collectCardsAnimation, 
+         createBurnCardAnimation, createPileCountDisplay, currentPileCountIncrement, currentPileCountReset } from '../Function/GameSetup';
 import AssetLoader from '../Function/AssetLoader';
+import { createGameOverScene } from '../Function/GameOverScene';
 
 const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
     console.log(gameInfo)
@@ -20,7 +23,7 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
             width: 960,
             height: 700,
             parent: 'phaser-container',
-            backgroundColor: '#2F81D6',   //1062B0
+            backgroundColor: '#2F81D6',  
         }
 
         resizeMain();
@@ -36,6 +39,8 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
                 return;
             }
 
+            const pileCountIncrement = currentPileCountIncrement(currentScene);
+
             globalPositions.current.forEach((pos, i) => {
                 updateCardCountDisplay(currentScene, pos, playerCardCounts, result.cardCount, playerId);
             })
@@ -43,6 +48,12 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
 
         socket.on('slapResult', ({ gameId, playerId, result }) => {
             const currentScene = game.scene.scenes[0];
+
+            if(result.message === "Invalid slap - no cards to burn"){
+                console.log(result.lives);
+                return;
+            }
+
             if (currentScene) {
                 createSlapAnimation(currentScene, playerId, globalPositions.current);
             }
@@ -52,6 +63,7 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
                     globalPositions.current.forEach((pos) => {
                         updateCardCountDisplay(currentScene, pos, playerCardCounts, result.count, playerId);
                     });
+                    const pileCountReset = currentPileCountReset(currentScene);
                 }, 700);
             }else{
                 if(result.message === "Invalid slap - card burned" && result.success === false){
@@ -60,6 +72,7 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
                 globalPositions.current.forEach((pos) => {
                     updateCardCountDisplay(currentScene, pos, playerCardCounts, result.count, playerId);
                 });
+                const pileCountIncrement = currentPileCountIncrement(currentScene);
             }
         });
 
@@ -70,15 +83,20 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
                 globalPositions.current.forEach((pos) => {
                     updateCardCountDisplay(currentScene, pos, playerCardCounts, cardCount, playerId);
                 });
+                const pileCountReset = currentPileCountReset(currentScene);
             }
         });
 
-        // socket.on('turnStarted', ({playerId, duration}) => {
-        //     const currentScene = game.scene.scenes[0];
-        //     if (currentScene) {
-        //         createTurnTimer(currentScene, playerId, globalPositions.current);
-        //     }
-        // });
+        socket.on('gameWon', (result) => {
+            console.log(result);
+            const currentScene = game.scene.scenes[0];
+            if (currentScene) {
+                // Create game over overlay
+                createGameOverScene(currentScene, result.winner);
+            }
+        });
+
+    
 
         return () => {
             game.destroy(true);
@@ -102,8 +120,8 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
     
 
     function create() {
-
-        this.input.setDefaultCursor('url(/assets/images/cursor.png), pointer');
+        // createGameOverScene(this, "samsontaiwo");
+        this.input.setDefaultCursor('url(assets/images/hand.png), pointer');
 
         const positions = getPlayerPositions(gameInfo, socket.id);
 
@@ -154,6 +172,9 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
         }, 1000);
 
         dealCards();
+
+        // Add pile count display
+        createPileCountDisplay(this, centerX, centerY);
     }
 
 

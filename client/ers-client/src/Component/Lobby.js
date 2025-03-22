@@ -66,6 +66,7 @@ const Lobby = ({ socket }) => {
   const handleStartGame = () => {
     if (socket) {
       socket.emit("startGame", gameCode);
+      socket.emit("update-settings", { gameCode, lives, autoShuffle });
     }
     // console.log('starting game');
     // setStartButton(false);
@@ -87,7 +88,7 @@ const Lobby = ({ socket }) => {
     if (socket.id === gameCode) {
       const newLives = Math.max(1, Math.min(4, lives + change));
       setLives(newLives);
-      socket.emit("update-settings", { gameCode, lives: newLives, timer, autoShuffle });
+      socket.emit("update-settings", { gameCode, lives: newLives, autoShuffle });
     }
   };
 
@@ -122,7 +123,7 @@ const Lobby = ({ socket }) => {
   return (
     <div id="lobby">
       <div className="player-div">
-        <div className="lobby-title"> Players {`(${playerInfo.length}/`}{playerInfo.length > 0 ? playerInfo[0].numPlayers : 4}) </div>
+        <div className="lobby-title"> Players {`(${playerInfo.length}/`}{playerInfo.length > 0 ? playerInfo[0].numPlayers : ''}) </div>
         {playerInfo.map((player, i) => (
           <section key={i}>
             <img className="avatar" src="/assets/images/playerAvatar.png" alt="Player Avatar" />

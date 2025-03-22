@@ -81,19 +81,10 @@ export function createPlayedCardAnimation(currentScene, cardImg, playerId, globa
 
     function createCardImage(scene, cardImg, x, y) {
         const card = scene.add.image(x, y, cardImg);  
-        card.setDisplaySize(140, 200);
-        card.setScale(0);
-            scene.tweens.add({
-                targets: card,
-                scaleX: 0.7,
-                scaleY: 0.7,
-                duration: 200,
-                ease: 'Back.easeOut'
-            });
-    
+        card.setDisplaySize(70, 100);
         return card;
     }
-    // console.log(globalPositions);
+
     if(success){
         setTimeout(() => {
             globalPositions.forEach((pos, i) => {
@@ -109,6 +100,8 @@ export function createPlayedCardAnimation(currentScene, cardImg, playerId, globa
                         targets: tempCard,
                         x: 480,
                         y: 350,
+                        displayWidth: 140,
+                        displayHeight: 200,
                         duration: 100,
                         ease: 'Power1',
                         onComplete: () => {
@@ -295,6 +288,8 @@ export function createCardCountDisplay(scene, pos, playerCardCounts, cardCount) 
 
 export function updateCardCountDisplay(scene, pos, playerCardCounts, cardCount, playerId) {
 
+    // if(!playerCardCounts) return;
+
 
     const check = pos.player.playerId === playerId;
     if(check === false){
@@ -416,34 +411,6 @@ export function collectCardsAnimation(scene, playerId, positions) {
     }
 }
 
-export function createTurnTimer(scene, playerId, positions) {
-    const playerPosition = positions.find(pos => pos.player.playerId === playerId);
-    if (!playerPosition) return;
-
-    // Create a circle around the player's card pile
-    const timerCircle = scene.add.circle(
-        playerPosition.cardX,
-        playerPosition.cardY,
-        45,  // radius
-        0xffffff,  // color (white)
-        0.5   // alpha
-    );
-    timerCircle.setDepth(999);
-
-    // Add pulsing animation
-    scene.tweens.add({
-        targets: timerCircle,
-        alpha: { from: 0.5, to: 0 },
-        duration: 1000,
-        repeat: 2,  // 3 seconds total
-        ease: 'Sine.easeInOut',
-        onComplete: () => {
-            timerCircle.destroy();
-        }
-    });
-
-    return timerCircle;
-}
 
 export function createBurnCardAnimation(scene, playerId, positions) {
     const playerPosition = positions.find(pos => pos.player.playerId === playerId);
@@ -492,3 +459,89 @@ export function createBurnCardAnimation(scene, playerId, positions) {
         }
     });
 }
+
+export function createPileCountDisplay(scene, centerX, centerY) {
+    const pileCountSquare = scene.add.graphics();
+    pileCountSquare.setDepth(999);
+    
+    pileCountSquare.fillStyle(0x942615, 0.7); // Red color
+    
+    pileCountSquare.fillRoundedRect(
+        centerX + 55, // x position (adjusted for center alignment)
+        centerY - 115, // y position (adjusted for center alignment)
+        35, // width
+        35, // height
+        10  // corner radius
+    );
+
+    // Add text for count display
+    const countText = scene.add.text(
+        centerX + 72,  // Center in square
+        centerY - 107, // Center in square
+        '52',
+        { 
+            fontSize: '20px',
+            fill: '#ffffff',
+            fontFamily: 'Arial'
+        }
+    );
+    countText.setDepth(1000);
+    countText.setOrigin(0.5, 0.5); // Center both horizontally and vertically
+    countText.setPosition(centerX + 72.5, centerY - 97.5); // Center in the square
+
+    // Animate count down from 52 to 0
+    let currentCount = 52;
+    const duration = 1000; // 1 second
+    const interval = duration / 52; // Time between each decrement
+
+    const timer = scene.time.addEvent({
+        delay: interval,
+        callback: () => {
+            currentCount--;
+            countText.setText(currentCount.toString());
+            if (currentCount <= 0) {
+                timer.destroy();
+            }
+        },
+        repeat: 51 // Decrement 52 times
+    });
+
+    return { pileCountSquare, countText };
+}
+export function currentPileCountIncrement(scene) {
+    // Find the text object that displays the pile count
+    const countText = scene.children.list.find(child => {
+        return child.type === 'Text' && 
+               child.x === scene.cameras.main.centerX + 72.5 &&
+               child.y === scene.cameras.main.centerY - 97.5;
+    });
+
+    if (countText) {
+        // Increment the count by 1 and return as number
+        countText.setText((parseInt(countText.text) + 1).toString());
+        return parseInt(countText.text);
+    }
+    
+    return null;
+}
+
+export function currentPileCountReset(scene) {
+    // Find the text object that displays the pile count
+    const countText = scene.children.list.find(child => {
+        return child.type === 'Text' && 
+               child.x === scene.cameras.main.centerX + 72.5 &&     
+               child.y === scene.cameras.main.centerY - 97.5;
+    });
+
+    if (countText) {
+        // Decrement the count by 1 and return as number
+        countText.setText((parseInt(0)).toString());   
+        return parseInt(countText.text);
+    }
+    
+    return null;    
+}
+
+
+
+

@@ -100,8 +100,7 @@ io.on("connection", (socket) => {
         let result = game.playCard(playerId);
         
         if (!result.success && result.message === "Game is locked") {
-               // If game is locked, just return without emitting cardPlayed
-     return;
+            return;
         }
 
         console.log(result);
@@ -129,7 +128,11 @@ io.on("connection", (socket) => {
         }
     
         let winCheck = game.checkWin();
-        if (winCheck) io.to(gameId).emit("gameWon", winCheck);
+        if (winCheck) {
+            io.to(gameId).emit("gameWon", winCheck);
+            delete games[gameId];
+            console.log(`Game ${gameId} ended and removed from memory`);
+        }
     });
 
     socket.on("slap", ({gameId, playerId}) => {
@@ -143,15 +146,9 @@ io.on("connection", (socket) => {
     socket.on("update-settings", ({gameCode, lives, timer, autoShuffle}) => {
         let game = games[gameCode];
         if (!game) return;
-
-        // Update the game settings
-        const settings = {
-            lives,
-            timer,
-            autoShuffle
-        };
         
-        game.settings = settings;
+        let settings = game.settings({lives, autoShuffle});
+        console.log(settings);
 
         io.to(gameCode).emit('settings-updated', settings);
     });

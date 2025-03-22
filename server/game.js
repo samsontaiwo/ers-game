@@ -22,7 +22,6 @@ const dealCards = (players) => {
   players.forEach((player, i) => {
     hands[player.playerId] = deck.filter((_, index) => index % playerCount === i);
   });
-  // console.log(hands);
 
   return hands;
 }
@@ -37,11 +36,18 @@ class ERSGame {
     this.currentTurn = 0;
     this.forcedTurn = 0;
     this.faceCardChallenge = null;
-    this.timer = 3000; // 3 seconds in milliseconds
-    this.turnStartTime = null;
-    // this.challengeWinner = null;
     this.isWaitingForSlap = false;
     this.isLocked = false;
+    this.eliminatedPlayers = [];
+  }
+
+  settings({lives, autoShuffle}){
+    this.autoShuffle = autoShuffle;
+    
+    this.players.forEach(player => {
+      player.lives = lives;
+    })
+    return {lives, autoShuffle};
   }
 
   getCurrentPlayer() {
@@ -84,15 +90,29 @@ class ERSGame {
       return { success: false, message: "Game is locked" };
     }
 
-    // Reset turn timer
-    this.turnStartTime = null;
-
     if (playerId !== this.getCurrentPlayer().playerId) {
       return { success: false };
     }
 
+    // Skip players with no cards automatically
+    if (this.hands[playerId].length === 0) {
+      if (!this.eliminatedPlayers.includes(playerId)) {
+        this.eliminatedPlayers.push(playerId);
+      }
+      this.nextTurn();
+      // Recursively call playCard for the next player if they also have no cards
+      if (this.getCurrentPlayer() && this.hands[this.getCurrentPlayer().playerId].length === 0) {
+        return this.playCard(this.getCurrentPlayer().playerId);
+      }
+      return { success: false, message: "No cards left", autoSkipped: true };
+    }
+
     let card = this.hands[playerId].shift();
     this.pile.push(card);
+
+    if (this.hands[playerId].length === 0 && !this.eliminatedPlayers.includes(playerId)) {
+      this.eliminatedPlayers.push(playerId);
+    }
 
     // Reset challenge if 10 is played
     if (card.rank === "10") {
@@ -134,7 +154,6 @@ class ERSGame {
           challengeWinnerCardCount: this.hands[winner].length
         };
       }
-      console.log('counting......');
       return { success: true, card, cardCount: this.hands[playerId].length };
     }
 
@@ -143,41 +162,78 @@ class ERSGame {
   }
 
   nextTurn() {
-    this.currentTurn = (this.currentTurn + 1) % this.players.length;
+    do {
+      this.currentTurn = (this.currentTurn + 1) % this.players.length;
+    } while (
+      // Keep going if current player is eliminated and there are still active players
+      this.eliminatedPlayers.includes(this.players[this.currentTurn].playerId) && 
+      this.eliminatedPlayers.length < this.players.length - 1
+    );
+  }
+
+  getActivePlayers() {
+    return this.players.filter(player => !this.eliminatedPlayers.includes(player.playerId));
   }
 
   slap(playerId) {
-    if (isValidSlap(this.pile)) {
-      this.isLocked = true;
-      
-      setTimeout(() => {
-        this.isLocked = false;
-      }, 2000);
+    this.isLocked = true;
+    setTimeout(() => {
+      this.isLocked = false;
+    }, 1000);
 
+    // Find the player object
+    const player = this.players.find(p => p.playerId === playerId);
+
+    if (isValidSlap(this.pile)) {
       console.log('yep you can slap this');
       this.isWaitingForSlap = false;
       this.faceCardChallenge = null;
       this.forcedTurn = 0;
       
+      // Give cards to player
       this.hands[playerId] = [...this.hands[playerId], ...this.pile];
       this.pile = [];
-      this.currentTurn = this.players.findIndex(player => player.playerId === playerId);
+      
+      // If player was eliminated, bring them back in
+      if (this.eliminatedPlayers.includes(playerId)) {
+        this.eliminatedPlayers = this.eliminatedPlayers.filter(id => id !== playerId);
+      }
+
+      this.currentTurn = this.players.findIndex(p => p.playerId === playerId);
       
       return { success: true, message: `${playerId} won the pile!`, count: this.hands[playerId].length };
-    }else{
+    } else {
+      if(this.eliminatedPlayers.includes(playerId) && player.lives > 0){
+        player.lives--;
+        return { success: false, message: "Invalid slap - no cards to burn", lives: player.lives };
+      }else if(this.eliminatedPlayers.includes(playerId) && player.lives === 0){
+        this.eliminatedPlayers.push(playerId);
+        return { success: false, message: "Invalid slap - no cards to burn", lives: player.lives };
+      }
       if (this.hands[playerId].length > 0) {
         const burnCard = this.hands[playerId].shift(); // Remove top card
         this.pile.unshift(burnCard); // Add to bottom of pile
+
+        // Check if player should be eliminated after burning card
+        if (this.hands[playerId].length === 0 && !this.eliminatedPlayers.includes(playerId)) {
+          this.eliminatedPlayers.push(playerId);
+        }
+
         return { success: false, message: "Invalid slap - card burned", count: this.hands[playerId].length };
       }
       return { success: false, message: "Invalid slap - no cards to burn" };
     }
-    
   }
 
   checkWin() {
-    let winner = this.players.find(player => this.hands[player.playerId].length === 52);
-    return winner ? { winner } : null;
+    const activePlayers = this.getActivePlayers();
+    if (activePlayers.length === 1) {
+      return {
+        winner: activePlayers[0],
+        message: "Last player with cards wins!"
+      };
+    }
+    return null;
   }
 }
 
