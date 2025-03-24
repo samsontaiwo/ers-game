@@ -90,7 +90,7 @@ io.on("connection", (socket) => {
         // console.log(playerCardCounts);
 
 
-        io.to(gameId).emit('gameStarted', {gameInfo: game, playerCardCounts})
+        io.to(gameId).emit('gameStarted', {gameInfo: game, playerCardCounts, })
     })
 
     socket.on("playCard", ({gameId, playerId}) => {

@@ -43,14 +43,72 @@ export function createPlayerNameTag(scene, pos) {
     return { ribbon, playerName };
 }
 
-export function createPlayerLives(scene, pos) {
-    //Create Life
-    const lives = scene.add.image(pos.x, pos.y + 55, 'heart')
-    lives.setDisplaySize(50, 50);
-    lives.setDepth(10);
+export function createPlayerLives(scene, pos, lives, message, playerId) {
+    const HEART_WIDTH = 55;
+    const HEART_HEIGHT = 45; 
+    const HEART_SPACING = -30; 
 
-    return { lives };
+    const numHearts = Math.min(4, Math.max(1, lives));
+    const totalWidth = (HEART_WIDTH + HEART_SPACING) * (numHearts - 1);
+    const startX = pos.x - (totalWidth / 2);
+    // Check for existing hearts and remove them
+    if (scene.heartGroup && message === "Invalid slap - no cards to burn") {
+        scene.heartGroup.clear(true, true);  // Remove existing hearts
+
+        scene.heartGroup = scene.add.group();
+
+        const hearts = [];
+
+        for (let i = 0; i < numHearts; i++) {
+            const heartX = startX + (i * (HEART_WIDTH + HEART_SPACING));
+            
+            const heart = scene.add.image(heartX, pos.y + 75, 'heart');
+            heart.setDisplaySize(HEART_WIDTH, HEART_HEIGHT);
+            heart.setDepth(10);
+
+            heart.key = `heart-${i + 1}`;  
+
+            // Add heart to the group
+            scene.heartGroup.add(heart);
+
+            hearts.push({
+                key: heart.key,
+                sprite: heart
+            });
+        }
+
+        return {hearts};
+
+    }
+
+    
+
+    // Create a new group for hearts
+    scene.heartGroup = scene.add.group();
+
+    const hearts = [];
+
+    for (let i = 0; i < numHearts; i++) {
+        const heartX = startX + (i * (HEART_WIDTH + HEART_SPACING));
+        
+        const heart = scene.add.image(heartX, pos.y + 75, 'heart');
+        heart.setDisplaySize(HEART_WIDTH, HEART_HEIGHT);
+        heart.setDepth(10);
+
+        heart.key = `heart-${i + 1}`;  
+
+        // Add heart to the group
+        scene.heartGroup.add(heart);
+
+        hearts.push({
+            key: heart.key,
+            sprite: heart
+        });
+    }
+
+    return { hearts };
 }
+
 
 export function createCentralPile(scene) {
     const centerX = scene.cameras.main.centerX;

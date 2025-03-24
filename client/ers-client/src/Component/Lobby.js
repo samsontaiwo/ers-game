@@ -170,7 +170,7 @@ const Lobby = ({ socket }) => {
             </div>
 
             {/* Timer Setting */}
-            <div id="timer">
+            {/* <div id="timer">
               <div>
                 <span>Timer: </span>
                 <span className="info-icon" title="Choose the countdown timer (default is 2 seconds).">ℹ️</span>
@@ -187,7 +187,7 @@ const Lobby = ({ socket }) => {
                   </button>
                 ))}
               </div>
-            </div>
+            </div> */}
 
             {/* AutoShuffle Toggle */}
             <div id="autoshuffle">

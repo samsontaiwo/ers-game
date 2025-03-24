@@ -4,7 +4,7 @@ import { useLocation } from 'react-router-dom';
 
 const Gameplay = ({socket}) => {
     const location = useLocation();
-    const { gameInfo, playerCardCounts } = location.state || {}; // Access the game data passed from the Lobby
+    const { gameInfo, playerCardCounts, initalLives } = location.state || {}; // Access the game data passed from the Lobby
     // console.log(gameInfo)
     
 

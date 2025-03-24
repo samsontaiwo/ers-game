@@ -7,7 +7,7 @@ import { createPlayerAvatar, createPlayerNameTag, createCentralPile, createDeali
 import AssetLoader from '../Function/AssetLoader';
 import { createGameOverScene } from '../Function/GameOverScene';
 
-const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
+const PhaserGame = ({ gameInfo, playerCardCounts, socket, }) => {
     console.log(gameInfo)
     console.log(playerCardCounts)
 
@@ -51,6 +51,9 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
 
             if(result.message === "Invalid slap - no cards to burn"){
                 console.log(result.lives);
+                globalPositions.current.forEach((pos) => {
+                    createPlayerLives(currentScene, pos, result.lives, result.message, playerId);
+                })
                 return;
             }
 
@@ -142,7 +145,7 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket }) => {
         positions.forEach((pos, i) => {
             createPlayerAvatar(this, pos);
             createPlayerNameTag(this, pos);
-            // createPlayerLives(this, pos);
+            createPlayerLives(this, pos, gameInfo.initalLives);
             createCardCountDisplay(this, pos, playerCardCounts);
         });
 

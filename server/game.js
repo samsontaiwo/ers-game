@@ -39,9 +39,13 @@ class ERSGame {
     this.isWaitingForSlap = false;
     this.isLocked = false;
     this.eliminatedPlayers = [];
+    this.initalLives = 2;
+    this.autoShuffle = false;
   }
 
   settings({lives, autoShuffle}){
+
+    this.initalLives = lives;
     this.autoShuffle = autoShuffle;
     
     this.players.forEach(player => {

@@ -81,18 +81,54 @@
     align-items: center;
   }
   
+  #lives > div:nth-child(2) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 5px;
+  }
+  
+  .heart-container {
+    display: flex;
+    gap: 0px;
+    width: 165px;
+    justify-content: center;
+    min-height: 60px;
+    position: relative;
+    z-index: 1;
+  }
   
   .heart {
-    height: 40px;
-    width: 35px;
+    height: 50px;
+    width: 70px;
     background-image: fill;
+    transition: opacity 0.2s ease;
+    margin-left: -15px;
+    pointer-events: none;
+  }
+  
+  .heart:first-child {
+    margin-left: 0;
   }
   
   .adjust-heart-buttons {
     all: unset;
     cursor: pointer;
-    margin-left: 5px;
+    margin: 0 5px;
     font-size: 20px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 2;
+  }
+  
+  .adjust-heart-buttons:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
   }
   
   .timer-options {
@@ -125,7 +161,7 @@
   
   #start-game-button {
     /* border: solid; */
-    margin-top: 10px;
+    margin-top: 25px;
     display: flex;
     justify-content: center;
     height: 35px;
