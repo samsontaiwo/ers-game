@@ -13,6 +13,7 @@ export default class AssetLoader {
         this.scene.load.image('slap', '/assets/images/slap.png');
         this.scene.load.image('heart', '/assets/images/heart.png');
         this.scene.load.image('hand', '/assets/images/hand.png');
+        this.scene.load.image('triangle', '/assets/images/triangle.png')
 
         // Load all the card images (52 cards + 2 jokers)
         this.scene.load.image('AS', 'https://deckofcardsapi.com/static/img/AS.png');

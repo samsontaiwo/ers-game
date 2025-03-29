@@ -35,7 +35,10 @@ export function getPlayerPositions(gameInfo, playerId ) {
             x: 0,  
             y: 0,
             cardX: 0,
-            cardY: 0,  
+            cardY: 0,
+            arrowX: 0,
+            arrowY: 0,  
+            arrowAngle: 0,
             cardWidth: 0,
             cardHeight: 0,  
         };
@@ -46,22 +49,26 @@ export function getPlayerPositions(gameInfo, playerId ) {
                 position.y = 600;
                 position.cardX = 230;
                 position.cardY = 600;
-     
+                position.arrowX = 230;
+                position.arrowY = 500;
+                position.arrowAngle = 0;
                 break;
-            case 1: // Left position
+            case 1: // Top Left position
                 position.x = 100;
                 position.y = 100;
                 position.cardX = 230;
                 position.cardY = 100;
-         
+                position.arrowX = 230;
+                position.arrowY = 200;
+                position.arrowAngle = 180;
                 break;
-            case 2: // Top position
+            case 2: // Top Right position
                 position.x = 860;
                 position.y = 100;
                 position.cardX = 730;
                 position.cardY = 100;
                 break;
-            case 3: // Right position
+            case 3: // Bottom Right position
                 position.x = 860;
                 position.y = 600;
                 position.cardX = 730;

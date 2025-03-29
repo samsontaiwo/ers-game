@@ -41,10 +41,10 @@ class ERSGame {
     this.eliminatedPlayers = [];
     this.initalLives = 2;
     this.autoShuffle = false;
+    this.timer = 30000; // Add a default timer (30 seconds for each turn)
   }
 
-  settings({lives, autoShuffle}){
-
+  settings({lives, autoShuffle}) {
     this.initalLives = lives;
     this.autoShuffle = autoShuffle;
     
@@ -55,7 +55,7 @@ class ERSGame {
   }
 
   getCurrentPlayer() {
-    return this.players[this.currentTurn];
+    return this.players[this.currentTurn]; //currently using index to track (that's why)
   }
 
   addPlayer(playerInfo) {
@@ -67,34 +67,12 @@ class ERSGame {
     return this.hands;
   }
 
-  startTurn() {
-    this.turnStartTime = Date.now();
-    return {
-      playerId: this.getCurrentPlayer().playerId,
-      duration: this.timer
-    };
-  }
-
-  checkTurnTimeout() {
-    if (!this.turnStartTime) return false;
-    
-    const elapsed = Date.now() - this.turnStartTime;
-    if (elapsed >= this.timer) {
-      // Auto play card if time is up
-      const currentPlayer = this.getCurrentPlayer();
-      if (this.hands[currentPlayer.playerId].length > 0) {
-        return this.playCard(currentPlayer.playerId);
-      }
-    }
-    return false;
-  }
-
   playCard(playerId) {
     if (this.isLocked) {
       return { success: false, message: "Game is locked" };
     }
 
-    if (playerId !== this.getCurrentPlayer().playerId) {
+    if (playerId !== this.getCurrentPlayer().playerId) {  //debug this.currentTurn!
       return { success: false };
     }
 
@@ -169,10 +147,15 @@ class ERSGame {
     do {
       this.currentTurn = (this.currentTurn + 1) % this.players.length;
     } while (
-      // Keep going if current player is eliminated and there are still active players
       this.eliminatedPlayers.includes(this.players[this.currentTurn].playerId) && 
-      this.eliminatedPlayers.length < this.players.length - 1
+      this.eliminatedPlayers.length < this.players.length
     );
+    // console.log(this.players[this.currentTurn])
+    
+  }
+
+  getNextTurn() {
+    return this.players[this.currentTurn];
   }
 
   getActivePlayers() {
@@ -187,6 +170,8 @@ class ERSGame {
 
     // Find the player object
     const player = this.players.find(p => p.playerId === playerId);
+
+    if(player.lives === 0) return {success: false, message: "You have 0 lives left!"};
 
     if (isValidSlap(this.pile)) {
       console.log('yep you can slap this');

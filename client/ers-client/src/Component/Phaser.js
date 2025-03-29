@@ -3,7 +3,7 @@ import Phaser from 'phaser';
 import { getPlayerPositions } from '../Function/PlayerPositions';
 import { createPlayerAvatar, createPlayerNameTag, createCentralPile, createDealingAnimation, createPlayedCardAnimation,
          createCardCountDisplay, updateCardCountDisplay, createPlayerLives, createSlapAnimation, collectCardsAnimation, 
-         createBurnCardAnimation, createPileCountDisplay, currentPileCountIncrement, currentPileCountReset } from '../Function/GameSetup';
+         createBurnCardAnimation, createPileCountDisplay, currentPileCountIncrement, currentPileCountReset, displayPlayerTurn } from '../Function/GameSetup';
 import AssetLoader from '../Function/AssetLoader';
 import { createGameOverScene } from '../Function/GameOverScene';
 
@@ -38,6 +38,9 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket, }) => {
             if(result.success === false){
                 return;
             }
+            socket.emit('getNextTurn', {gameId})
+
+            // displayPlayerTurn(currentScene, globalPositions.current, false, playerId);
 
             const pileCountIncrement = currentPileCountIncrement(currentScene);
 
@@ -46,8 +49,18 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket, }) => {
             })
         })
 
+        socket.on("nextTurn", ({playerId}) => {
+            const currentScene = game.scene.scenes[0];
+            console.log(playerId, 'just ch')
+            displayPlayerTurn(currentScene, globalPositions.current, playerId);
+
+
+        })
+
         socket.on('slapResult', ({ gameId, playerId, result }) => {
             const currentScene = game.scene.scenes[0];
+
+            if(!result) return;
 
             if(result.message === "Invalid slap - no cards to burn"){
                 console.log(result.lives);
@@ -67,6 +80,7 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket, }) => {
                         updateCardCountDisplay(currentScene, pos, playerCardCounts, result.count, playerId);
                     });
                     const pileCountReset = currentPileCountReset(currentScene);
+                    socket.emit('getNextTurn', {gameId})
                 }, 700);
             }else{
                 if(result.message === "Invalid slap - card burned" && result.success === false){
@@ -147,6 +161,10 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket, }) => {
             createPlayerNameTag(this, pos);
             createPlayerLives(this, pos, gameInfo.initalLives);
             createCardCountDisplay(this, pos, playerCardCounts);
+            if(pos.player.playerId === localStorage.getItem('gameId')){
+                this.triangle  = this.add.image(pos.arrowX, pos.arrowY, 'triangle')
+                this.triangle.setDisplaySize(25,25).setAngle(pos.arrowAngle)
+            }
         });
 
         // Handle dealing animation
@@ -178,6 +196,7 @@ const PhaserGame = ({ gameInfo, playerCardCounts, socket, }) => {
 
         // Add pile count display
         createPileCountDisplay(this, centerX, centerY);
+        
     }
 
 

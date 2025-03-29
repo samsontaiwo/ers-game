@@ -600,6 +600,34 @@ export function currentPileCountReset(scene) {
     return null;    
 }
 
+export function displayPlayerTurn(scene, positions, playerId) {
+    console.log(positions);
+    let X; 
+    let Y;
+    let angle;
+    positions.forEach((ele, i)=> {
+       if(ele.player.playerId === playerId){
+        X = ele.arrowX;
+        Y = ele.arrowY;
+        angle = ele.arrowAngle;
+       }
+    })
+
+    if(scene.triangle){
+        scene.tweens.add({
+            targets: scene.triangle,
+            x: X, 
+            y: Y,
+            angle: angle,
+            duration: 300, 
+            ease: 'Power2', 
+            onComplete: () => {
+                console.log('finished');
+            }
+        })
+    }
+}
+
 
 
 

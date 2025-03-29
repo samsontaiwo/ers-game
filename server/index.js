@@ -153,6 +153,13 @@ io.on("connection", (socket) => {
         io.to(gameCode).emit('settings-updated', settings);
     });
 
+    socket.on("getNextTurn", ({gameId}) => {
+        const game = games[gameId];
+        let result = game.getNextTurn();
+        console.log(result, 'over here wande coal');
+        io.to(gameId).emit("nextTurn", result);
+    })
+
     socket.on("disconnect", () => {
         console.log("Player disconnected: " + socket.id);
     });
